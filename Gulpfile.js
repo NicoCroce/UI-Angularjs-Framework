@@ -8,6 +8,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	rename = require('gulp-rename'),//https://www.npmjs.org/package/gulp-rename
 	sourcemaps = require('gulp-sourcemaps'),
 	path = require('path'),
+	plumber = require('gulp-plumber'),
 	log = gutil.log;
 
 
@@ -32,25 +33,22 @@ var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
 
 gulp.task("sass", function(){ 
 	log("Generate CSS files " + (new Date()).toString());
-    gulp.src(SASS_FILES)
-    	// .pipe(sourcemaps.init())
+    return gulp.src(SASS_FILES)
+    	.pipe(sourcemaps.init())
 		.pipe(sass())
-		.pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4' ))	
-		// .pipe(sourcemaps.write('./maps'))
-		.pipe(rename('nico.css'))
-		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css')));
-		// .pipe(rename({suffix: '.min'}))
+		.pipe(autoprefixer())	
+		.pipe(rename('style.css'))
 		// .pipe(minifycss())
-		// .pipe(gulp.dest('target/css'));
+		.pipe(sourcemaps.write('./maps'))
+		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css')))
+		.pipe(plumber({
+            errorHandler: onError
+        }));
 });
 
-gulp.task('auto', function () {
-	log("Generate CSS files");
-	return gulp.src('dev/css/nico.css')
-		.pipe(autoprefixer('last 2 version'))	 //, 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'
-		.pipe(rename('asd.css'))
-		.pipe(gulp.dest('dev/css'));
-});
+function onError(err) {
+    log(err);
+}
 
 gulp.task("watch", function(){
 	log("Watching scss files for modifications");
