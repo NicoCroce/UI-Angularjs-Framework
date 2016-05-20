@@ -53,7 +53,7 @@ gulp.task("sass", function(){
 
 //*************************************    SECCIÓN  Prod    *************************************
 
-	gulp.task("minCss", function(){
+	gulp.task("minCss", ['sass'], function(){
 		log("Generate minify CSS   " + (new Date()).toString());
 		return gulp.src(FOLDER_DEV + '/**/*.css')
 			.pipe(minifycss())
