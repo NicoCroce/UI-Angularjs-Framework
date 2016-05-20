@@ -31,6 +31,8 @@ var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
 
 //*************************************    SECCIÓN  Tasks    *************************************
 
+require('gulp-stats')(gulp);
+
 gulp.task("sass", function(){ 
 	log("Generate CSS files " + (new Date()).toString());
     return gulp.src(SASS_FILES)
@@ -38,13 +40,31 @@ gulp.task("sass", function(){
 		.pipe(sass())
 		.pipe(autoprefixer())	
 		.pipe(rename('style.css'))
-		// .pipe(minifycss())
 		.pipe(sourcemaps.write('./maps'))
 		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css')))
 		.pipe(plumber({
             errorHandler: onError
         }));
 });
+
+
+
+
+
+//*************************************    SECCIÓN  Prod    *************************************
+
+	gulp.task("minCss", function(){
+		log("Generate minify CSS   " + (new Date()).toString());
+		return gulp.src(FOLDER_DEV + '/**/*.css')
+			.pipe(minifycss())
+			.pipe(gulp.dest(FOLDER_DIST))
+			.pipe(plumber({
+	            errorHandler: onError
+	        }));
+	});
+
+//************************************************************************************
+
 
 function onError(err) {
     log(err);
