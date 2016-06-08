@@ -11,6 +11,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	plumber = require('gulp-plumber'), //Control de errores.
 	debug = require('gulp-debug'),
 	connect = require('gulp-connect'),
+	concat = require('gulp-concat'),
 	log = gutil.log;
 
 
@@ -29,17 +30,13 @@ var SRC_HTML_BASE = path.join(FOLDER_ASSETS, 'templates');
 var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
 var HTML_FILES = SRC_HTML_BASE + '/**/*';
 
+var ENVIRONMENT;  // 'dev' | 'dep' 
 var runFirstTime = true;
 
 
 //*************************************    SECCIÓN  Tasks    *************************************
 
 // require('gulp-stats')(gulp);
-
-// gulp.task('connect', connect.server({
-//     root: ['dev'],
-//     open: { browser: 'Google Chrome' }
-//   }));
 
 gulp.task('connect', function() {
 	connect.server({
@@ -66,12 +63,20 @@ gulp.task("sass", function(){
 });
 
 gulp.task("copyTemplates", function () {
+	var destFolder = returnDestFolder();	
 	showComment('Copying HTML Files');
 	return gulp.src(HTML_FILES)
-	.pipe(gulp.dest(FOLDER_DEV))
+	.pipe(gulp.dest(destFolder))
 	.pipe(plumber({
 		errorHandler: onError
 	}));
+});
+
+gulp.task("watch", function(){
+	gulp.watch(SASS_FILES, ["sass"]);
+	// .on('change', function(event) {
+ //      log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+ //    });
 });
 
 //*************************************    SECCIÓN  Prod    *************************************
@@ -86,8 +91,6 @@ gulp.task("minCss", ['sass'], function(){
 	}));
 });
 
-//************************************************************************************
-
 
 //*************************************    SECCIÓN  util    *************************************
 
@@ -99,22 +102,39 @@ function showComment(string){
 	log('------------------------------------------------');
 }
 
-//************************************************************************************
-
 function onError(err) {
 	log(err);
 }
 
-gulp.task("watch", function(){
-	gulp.watch(SASS_FILES, ["sass"]);
-});
+function returnDestFolder(){
+	var destFolder;
+	switch (ENVIRONMENT) {
+		case 'dev':
+			destFolder = FOLDER_DEV;
+			break;
+		case 'dep':
+			destFolder = FOLDER_DIST;
+			break;
+		default:
+			destFolder = FOLDER_DEV;
+			break;
+	}
+	return destFolder;
+}
+
+//*************************************    SECCIÓN  runner    *************************************
 
 gulp.task('default', ['connect', 'copyTemplates', 'sass', 'watch'], function () {
-	 showComment('COMPLETE');
-	 !runFirstTime;
-});
+	ENVIRONMENT = 'dev';
+	showComment('COMPLETE');
+	runFirstTime = false;
+});	
+
+gulp.task('deploy', ['copyTemplates'], function () {
+	ENVIRONMENT = 'dep';
+	runFirstTime = false;
+	showComment('COMPLETE DEPLOY');
+});	
 
 //************************************************************************************
-
-
 
