@@ -29,6 +29,9 @@ var SRC_HTML_BASE = path.join(FOLDER_ASSETS, 'templates');
 
 var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
 var HTML_FILES = SRC_HTML_BASE + '/**/*';
+var JS_FILES = path.join(SRC_JAVASCRIPT_BASE, 'partials') + '/**/*.js';
+var JS_FILES_BUNDLES = path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*';
+
 
 var ENVIRONMENT;  // 'dev' | 'dep' 
 var runFirstTime = true;
@@ -49,12 +52,12 @@ gulp.task('connect', function() {
 gulp.task("sass", function(){
 	showComment('Changed SASS File');
 	return gulp.src(SASS_FILES)
-	.pipe(debug({title: 'Source file: '}))
+	// .pipe(debug({title: 'Source file: '}))
 	.pipe(sourcemaps.init())
 	.pipe(sass())
 	.pipe(autoprefixer())	
 	.pipe(rename('style.css'))
-	.pipe(debug({title: 'Dest file: '}))
+	// .pipe(debug({title: 'Dest file: '}))
 	.pipe(sourcemaps.write('./maps'))
 	.pipe(gulp.dest(path.join(FOLDER_DEV, 'css')))
 	.pipe(plumber({
@@ -68,6 +71,28 @@ gulp.task("copyTemplates", function () {
 	return gulp.src(HTML_FILES)
 	.pipe(gulp.dest(destFolder))
 	.pipe(plumber({
+		errorHandler: onError
+	}));
+});
+
+gulp.task("copyJs", function () {
+	var destFolder = returnDestFolder();	
+	showComment('Copying JS Files');
+	return gulp.src(JS_FILES_BUNDLES)
+	.pipe(gulp.dest(path.join(destFolder, 'js/bundles')))
+	.pipe(plumber({
+		errorHandler: onError
+	}));
+});
+
+gulp.task('jsConcat', ['copyJs'], function() {
+  gulp.src(JS_FILES)
+  	.pipe(sourcemaps.init())
+    .pipe( concat('script.js') ) // concat pulls all our files together before minifying them
+    .pipe(sourcemaps.write('./maps'))
+    // .pipe(uglify())
+    .pipe(gulp.dest(path.join(FOLDER_DEV, 'js')))
+    .pipe(plumber({
 		errorHandler: onError
 	}));
 });
@@ -124,7 +149,7 @@ function returnDestFolder(){
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', ['connect', 'copyTemplates', 'sass', 'watch'], function () {
+gulp.task('default', ['connect', 'copyTemplates', 'sass', 'jsConcat', 'watch'], function () {
 	ENVIRONMENT = 'dev';
 	showComment('COMPLETE');
 	runFirstTime = false;
