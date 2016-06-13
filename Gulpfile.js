@@ -28,7 +28,7 @@ var SRC_JAVASCRIPT_BASE = path.join(FOLDER_ASSETS, 'js');
 var SRC_HTML_BASE = path.join(FOLDER_ASSETS, 'templates');
 
 var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
-var HTML_FILES = SRC_HTML_BASE + '/**/*';
+var HTML_FILES = SRC_HTML_BASE + '/**/*.html';
 var JS_FILES = path.join(SRC_JAVASCRIPT_BASE, 'partials') + '/**/*.js';
 var JS_FILES_BUNDLES = path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*';
 
@@ -41,7 +41,7 @@ var runFirstTime = true;
 
 // require('gulp-stats')(gulp);
 
-gulp.task('connect', function() {
+gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'watch'], function() {
 	connect.server({
 		root: 'dev',
 		port: 2173
@@ -98,7 +98,9 @@ gulp.task('jsConcat', ['copyJs'], function() {
 });
 
 gulp.task("watch", function(){
-	gulp.watch(SASS_FILES, ["sass"]);
+	gulp.watch(SASS_FILES, ['sass']);
+	gulp.watch(HTML_FILES, ['copyTemplates']);
+	gulp.watch(JS_FILES, ['jsConcat', 'copyJs']);
 	// .on('change', function(event) {
  //      log('File ' + event.path + ' was ' + event.type + ', running tasks...');
  //    });
