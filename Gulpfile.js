@@ -12,6 +12,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	debug = require('gulp-debug'),
 	connect = require('gulp-connect'),
 	concat = require('gulp-concat'),
+	// imagemin = require('gulp-imagemin'),
 	log = gutil.log;
 
 
@@ -31,7 +32,7 @@ var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
 var HTML_FILES = SRC_HTML_BASE + '/**/*.html';
 var JS_FILES = path.join(SRC_JAVASCRIPT_BASE, 'partials') + '/**/*.js';
 var JS_FILES_BUNDLES = path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*';
-
+var IMAGES_FILES = SRC_IMAGES_BASE + '/**/*';
 
 var ENVIRONMENT;  // 'dev' | 'dep' 
 var runFirstTime = true;
@@ -41,7 +42,7 @@ var runFirstTime = true;
 
 // require('gulp-stats')(gulp);
 
-gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'watch'], function() {
+gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'copyImg'], function() {
 	connect.server({
 		root: 'dev',
 		port: 2173
@@ -75,6 +76,16 @@ gulp.task("copyTemplates", function () {
 	}));
 });
 
+gulp.task("copyImg", function () {
+	var destFolder = returnDestFolder();	
+	showComment('Copying Images Files');
+	return gulp.src(IMAGES_FILES)
+	.pipe(gulp.dest(path.join(destFolder, 'img')))
+	.pipe(plumber({
+		errorHandler: onError
+	}));
+});
+
 gulp.task("copyJs", function () {
 	var destFolder = returnDestFolder();	
 	showComment('Copying JS Files');
@@ -96,6 +107,14 @@ gulp.task('jsConcat', ['copyJs'], function() {
 		errorHandler: onError
 	}));
 });
+
+// gulp.task('compressImg', function() {
+//     return gulp.src(IMAGES_FILES)
+//            .pipe(imagemin({
+//                 progressive: true
+//            }))
+//            .pipe(gulp.dest(path.join(FOLDER_DEV, 'img')));
+// });
 
 gulp.task("watch", function(){
 	gulp.watch(SASS_FILES, ['sass']);
@@ -151,7 +170,7 @@ function returnDestFolder(){
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', ['connect', 'copyTemplates', 'sass', 'jsConcat', 'watch'], function () {
+gulp.task('default', ['connect', 'watch'], function () {
 	ENVIRONMENT = 'dev';
 	showComment('COMPLETE');
 	runFirstTime = false;
