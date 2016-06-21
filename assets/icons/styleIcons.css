@@ -1,0 +1,54 @@
+@font-face {
+    font-family: 'styleIcons';
+    src:    url('../fonts/styleIcons.eot?77sp2q');
+    src:    url('../fonts/styleIcons.eot?77sp2q#iefix') format('embedded-opentype'),
+        url('../fonts/styleIcons.ttf?77sp2q') format('truetype'),
+        url('../fonts/styleIcons.woff?77sp2q') format('woff'),
+        url('../fonts/styleIcons.svg?77sp2q#styleIcons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'styleIcons' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-chevron-down:before {
+    content: "\e900";
+}
+.icon-chevron-left:before {
+    content: "\e901";
+}
+.icon-chevron-right:before {
+    content: "\e902";
+}
+.icon-chevron-small-down:before {
+    content: "\e903";
+}
+.icon-chevron-small-left:before {
+    content: "\e904";
+}
+.icon-chevron-small-right:before {
+    content: "\e905";
+}
+.icon-chevron-with-circle-down:before {
+    content: "\e906";
+}
+.icon-chevron-with-circle-left:before {
+    content: "\e907";
+}
+.icon-chevron-with-circle-right:before {
+    content: "\e908";
+}
+

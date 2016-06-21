@@ -42,7 +42,7 @@ var runFirstTime = true;
 
 // require('gulp-stats')(gulp);
 
-gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'copyImg'], function() {
+gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'copyImg', 'copyIcons'], function() {
 	connect.server({
 		root: 'dev',
 		port: 2173
@@ -84,6 +84,18 @@ gulp.task("copyImg", function () {
 	.pipe(plumber({
 		errorHandler: onError
 	}));
+});
+
+gulp.task("copyIcons", function () {
+	var destFolder = returnDestFolder();	
+	log('Copying Icons Files');
+	
+	gulp.src(SRC_FONTS_BASE + '/**/*.css')
+	.pipe(gulp.dest(path.join(destFolder, 'css')));
+
+	gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
+	.pipe(gulp.dest(path.join(destFolder, 'fonts')));
+
 });
 
 gulp.task("copyJs", function () {
