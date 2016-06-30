@@ -8,7 +8,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	rename = require('gulp-rename'),//https://www.npmjs.org/package/gulp-rename
 	sourcemaps = require('gulp-sourcemaps'), //Genera un mapa de referencias para los archivos. 
 	path = require('path'), //Es de Node. Concatena.
-	plumber = require('gulp-plumber'), //Control de errores.
+	livereload = require('gulp-livereload'),
 	debug = require('gulp-debug'),
 	connect = require('gulp-connect'),
 	concat = require('gulp-concat'),
@@ -30,7 +30,7 @@ var SRC_HTML_BASE = path.join(FOLDER_ASSETS, 'templates');
 
 var SASS_FILES = SRC_SASS_BASE + '/**/*.scss';
 var HTML_FILES = SRC_HTML_BASE + '/**/*.html';
-var JS_FILES = path.join(SRC_JAVASCRIPT_BASE, 'partials') + '/**/*.js';
+var JS_FILES = SRC_JAVASCRIPT_BASE + '/**/*.js';
 var JS_FILES_BUNDLES = path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*';
 var IMAGES_FILES = SRC_IMAGES_BASE + '/**/*';
 
@@ -60,30 +60,23 @@ gulp.task("sass", function(){
 	.pipe(rename('style.css'))
 	// .pipe(debug({title: 'Dest file: '}))
 	.pipe(sourcemaps.write('./maps'))
-	.pipe(gulp.dest(path.join(FOLDER_DEV, 'css')))
-	.pipe(plumber({
-		errorHandler: onError
-	}));
+	.pipe(gulp.dest(path.join(FOLDER_DEV, 'css'))).on('error', gutil.log)
+	.pipe(livereload());
 });
 
 gulp.task("copyTemplates", function () {
 	var destFolder = returnDestFolder();	
 	showComment('Copying HTML Files');
 	return gulp.src(HTML_FILES)
-	.pipe(gulp.dest(destFolder))
-	.pipe(plumber({
-		errorHandler: onError
-	}));
+	.pipe(gulp.dest(destFolder)).on('error', gutil.log)
+	.pipe(livereload());
 });
 
 gulp.task("copyImg", function () {
 	var destFolder = returnDestFolder();	
 	showComment('Copying Images Files');
 	return gulp.src(IMAGES_FILES)
-	.pipe(gulp.dest(path.join(destFolder, 'img')))
-	.pipe(plumber({
-		errorHandler: onError
-	}));
+	.pipe(gulp.dest(path.join(destFolder, 'img'))).on('error', gutil.log);
 });
 
 gulp.task("copyIcons", function () {
@@ -91,10 +84,10 @@ gulp.task("copyIcons", function () {
 	log('Copying Icons Files');
 	
 	gulp.src(SRC_FONTS_BASE + '/**/*.css')
-	.pipe(gulp.dest(path.join(destFolder, 'css')));
+	.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
 
 	gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
-	.pipe(gulp.dest(path.join(destFolder, 'fonts')));
+	.pipe(gulp.dest(path.join(destFolder, 'fonts'))).on('error', gutil.log);
 
 });
 
@@ -102,10 +95,7 @@ gulp.task("copyJs", function () {
 	var destFolder = returnDestFolder();	
 	showComment('Copying JS Files');
 	return gulp.src(JS_FILES_BUNDLES)
-	.pipe(gulp.dest(path.join(destFolder, 'js/bundles')))
-	.pipe(plumber({
-		errorHandler: onError
-	}));
+	.pipe(gulp.dest(path.join(destFolder, 'js/bundles'))).on('error', gutil.log);
 });
 
 gulp.task('jsConcat', ['copyJs'], function() {
@@ -114,10 +104,8 @@ gulp.task('jsConcat', ['copyJs'], function() {
     .pipe( concat('script.js') ) // concat pulls all our files together before minifying them
     .pipe(sourcemaps.write('./maps'))
     // .pipe(uglify())
-    .pipe(gulp.dest(path.join(FOLDER_DEV, 'js')))
-    .pipe(plumber({
-		errorHandler: onError
-	}));
+    .pipe(gulp.dest(path.join(FOLDER_DEV, 'js'))).on('error', gutil.log)
+    .pipe(livereload());
 });
 
 // gulp.task('compressImg', function() {
@@ -129,6 +117,7 @@ gulp.task('jsConcat', ['copyJs'], function() {
 // });
 
 gulp.task("watch", function(){
+	livereload.listen();
 	gulp.watch(SASS_FILES, ['sass']);
 	gulp.watch(HTML_FILES, ['copyTemplates']);
 	gulp.watch(JS_FILES, ['jsConcat', 'copyJs']);
@@ -143,10 +132,7 @@ gulp.task("minCss", ['sass'], function(){
 	log("Generate minify CSS   " + (new Date()).toString());
 	return gulp.src(FOLDER_DEV + '/**/*.css')
 	.pipe(minifycss())
-	.pipe(gulp.dest(FOLDER_DIST))
-	.pipe(plumber({
-		errorHandler: onError
-	}));
+	.pipe(gulp.dest(FOLDER_DIST)).on('error', gutil.log);
 });
 
 
