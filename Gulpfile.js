@@ -52,7 +52,7 @@ gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'copyImg', 'copyIcons
 
 gulp.task("sass", function(){
 	showComment('Changed SASS File');
-	return gulp.src(SASS_FILES)
+	return gulp.src(SRC_SASS_BASE + '/style.scss')
 	// .pipe(debug({title: 'Source file: '}))
 	.pipe(sourcemaps.init())
 	.pipe(sass())
