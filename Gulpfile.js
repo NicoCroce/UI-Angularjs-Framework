@@ -12,6 +12,8 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	debug = require('gulp-debug'),
 	connect = require('gulp-connect'),
 	concat = require('gulp-concat'),
+	changed = require('gulp-changed'),
+	del = require('del'),
 	// imagemin = require('gulp-imagemin'),
 	log = gutil.log;
 
@@ -49,8 +51,11 @@ gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'copyImg', 'copyIcons
 	});
 });
 
+gulp.task('clean', function () {
+	if(runFirstTime) { return del(['dev']); }
+});
 
-gulp.task("sass", function(){
+gulp.task("sass", ['clean'], function(){
 	showComment('Changed SASS File');
 	return gulp.src(SRC_SASS_BASE + '/style.scss')
 	// .pipe(debug({title: 'Source file: '}))
@@ -64,42 +69,48 @@ gulp.task("sass", function(){
 	.pipe(livereload());
 });
 
-gulp.task("copyTemplates", function () {
-	var destFolder = returnDestFolder();	
+gulp.task("copyTemplates", ['clean'], function () {
+	var destFolder = returnDestFolder();
+	if(!runFirstTime) { del(['dev/partials']); del(['dev/index.html']); }
+		
 	showComment('Copying HTML Files');
 	return gulp.src(HTML_FILES)
 	.pipe(gulp.dest(destFolder)).on('error', gutil.log)
 	.pipe(livereload());
 });
 
-gulp.task("copyImg", function () {
-	var destFolder = returnDestFolder();	
+gulp.task("copyImg", ['clean'], function () {
+	var destFolder = returnDestFolder();
+	if(!runFirstTime) { del(['dev/img']); }
 	showComment('Copying Images Files');
 	return gulp.src(IMAGES_FILES)
 	.pipe(gulp.dest(path.join(destFolder, 'img'))).on('error', gutil.log);
 });
 
-gulp.task("copyIcons", function () {
+gulp.task("copyIcons", ['clean'], function () {
 	var destFolder = returnDestFolder();	
 	log('Copying Icons Files');
-	
+
+	if(!runFirstTime) { del(['dev/css/styleIcons.css']); }
 	gulp.src(SRC_FONTS_BASE + '/**/*.css')
 	.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
 
-	gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
+	if(!runFirstTime) { del(['dev/fonts']); }
+	return gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
 	.pipe(gulp.dest(path.join(destFolder, 'fonts'))).on('error', gutil.log);
 
 });
 
-gulp.task("copyJs", function () {
-	var destFolder = returnDestFolder();	
+gulp.task("copyJs", ['clean'], function () {
+	var destFolder = returnDestFolder();
+	if(!runFirstTime) { del(['js/bundles']); }
 	showComment('Copying JS Files');
 	return gulp.src(JS_FILES_BUNDLES)
 	.pipe(gulp.dest(path.join(destFolder, 'js/bundles'))).on('error', gutil.log);
 });
 
-gulp.task('jsConcat', ['copyJs'], function() {
-  gulp.src(JS_FILES)
+gulp.task('jsConcat', ['clean', 'copyJs'], function() {
+  return gulp.src(JS_FILES)
   	.pipe(sourcemaps.init())
     .pipe( concat('script.js') ) // concat pulls all our files together before minifying them
     .pipe(sourcemaps.write('./maps'))
@@ -121,6 +132,8 @@ gulp.task("watch", function(){
 	gulp.watch(SASS_FILES, ['sass']);
 	gulp.watch(HTML_FILES, ['copyTemplates']);
 	gulp.watch(JS_FILES, ['jsConcat', 'copyJs']);
+	gulp.watch(SRC_FONTS_BASE, ['copyIcons']);
+
 	// .on('change', function(event) {
  //      log('File ' + event.path + ' was ' + event.type + ', running tasks...');
  //    });
@@ -168,7 +181,7 @@ function returnDestFolder(){
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', ['connect', 'watch'], function () {
+gulp.task('default', ['clean', 'connect', 'watch'], function () {
 	ENVIRONMENT = 'dev';
 	showComment('COMPLETE');
 	runFirstTime = false;
