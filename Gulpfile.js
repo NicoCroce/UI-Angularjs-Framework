@@ -35,6 +35,7 @@ var HTML_FILES = SRC_HTML_BASE + '/**/*.html';
 var JS_FILES = SRC_JAVASCRIPT_BASE + '/**/*.js';
 var JS_FILES_BUNDLES = path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*';
 var IMAGES_FILES = SRC_IMAGES_BASE + '/**/*';
+var ICON_FILES = SRC_FONTS_BASE + '/**/*';
 
 var ENVIRONMENT;  // 'dev' | 'dep' 
 var runFirstTime = true;
@@ -91,12 +92,14 @@ gulp.task("copyIcons", ['clean'], function () {
 	var destFolder = returnDestFolder();	
 	log('Copying Icons Files');
 
-	if(!runFirstTime) { del(['dev/css/styleIcons.css']); }
+	if(!runFirstTime) { 
+		del(['dev/css/styleIcons.css']);
+		del(['dev/fonts']);
+	}
 	gulp.src(SRC_FONTS_BASE + '/**/*.css')
 	.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
 
-	if(!runFirstTime) { del(['dev/fonts']); }
-	return gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
+	gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
 	.pipe(gulp.dest(path.join(destFolder, 'fonts'))).on('error', gutil.log);
 
 });
@@ -132,7 +135,7 @@ gulp.task("watch", function(){
 	gulp.watch(SASS_FILES, ['sass']);
 	gulp.watch(HTML_FILES, ['copyTemplates']);
 	gulp.watch(JS_FILES, ['jsConcat', 'copyJs']);
-	gulp.watch(SRC_FONTS_BASE, ['copyIcons']);
+	gulp.watch(ICON_FILES, ['copyIcons']);
 
 	// .on('change', function(event) {
  //      log('File ' + event.path + ' was ' + event.type + ', running tasks...');
