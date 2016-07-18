@@ -14,6 +14,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	concat = require('gulp-concat'),
 	changed = require('gulp-changed'),
 	del = require('del'),
+	cleanDest = require('gulp-clean-dest'),
 	// imagemin = require('gulp-imagemin'),
 	log = gutil.log;
 
@@ -54,6 +55,7 @@ gulp.task('connect', ['copyTemplates', 'sass', 'jsConcat', 'copyImg', 'copyIcons
 
 gulp.task('clean', function () {
 	if(runFirstTime) { return del(['dev']); }
+	return;	
 });
 
 gulp.task("sass", ['clean'], function(){
@@ -105,14 +107,14 @@ gulp.task("copyIcons", ['clean'], function () {
 });
 
 gulp.task("copyJs", ['clean'], function () {
-	var destFolder = returnDestFolder();
-	if(!runFirstTime) { del(['js/bundles']); }
 	showComment('Copying JS Files');
+	var destFolder = returnDestFolder();
 	return gulp.src(JS_FILES_BUNDLES)
-	.pipe(gulp.dest(path.join(destFolder, 'js/bundles'))).on('error', gutil.log);
+	.pipe(cleanDest('dev/js/bundles'));
+	/*.pipe(gulp.dest(path.join(destFolder, 'js/bundles'))).on('error', gutil.log);*/
 });
 
-gulp.task('jsConcat', ['clean', 'copyJs'], function() {
+gulp.task('jsConcat', ['copyJs'], function() {
   return gulp.src(JS_FILES)
   	.pipe(sourcemaps.init())
     .pipe( concat('script.js') ) // concat pulls all our files together before minifying them
