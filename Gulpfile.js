@@ -45,38 +45,149 @@ var runFirstTime = true;
 
 // require('gulp-stats')(gulp);
 
-function clean (done) {
-	if(runFirstTime) { return del(['dev']); }
-	return done();	
+
+gulp.task("clean", gulp.series(clean));
+
+gulp.task("sass", gulp.series(sassFunction));
+
+gulp.task("copyTemplates", gulp.series(cleanTemplates, copyTemplates));
+
+gulp.task("copyImg", gulp.series(cleanImg, copyImg));
+
+gulp.task("copyIcons", gulp.series(cleanIcons, copyIcons));
+
+gulp.task("copyJs", gulp.series(cleanJs, copyJs));
+
+gulp.task('jsConcat', gulp.series('copyJs', jsConcat));
+
+gulp.task('connect', gulp.series(clean, gulp.parallel("copyTemplates", "sass", "jsConcat", "copyImg", "copyIcons"), connectServer));
+
+gulp.task("watch", function () {
+	gulp.watch(SASS_FILES).on('change', function (pathFile) {
+		gulp.series("sass");
+		log('El archivo modificado es: ' + pathFile);
+	});
+	gulp.watch(HTML_FILES).on('change', function (pathFile) {
+		gulp.series("copyTemplates");
+		log('El archivo modificado es: ' + pathFile);
+	});
+	gulp.watch(JS_FILES).on('change', function (pathFile) {
+		gulp.series("jsConcat", "copyJs");
+		log('El archivo modificado es: ' + pathFile);
+	});
+	gulp.watch(ICON_FILES).on('change', function (pathFile) {
+		gulp.series("copyIcons");
+		log('El archivo modificado es: ' + pathFile);
+	});
+});
+
+//*************************************    SECCIÓN  Functions    *************************************
+
+function clean(done) {
+	del([FOLDER_DEV]);
+	return done();
 };
 
-gulp.task("sass", gulp.series(clean, function sassFunction(){
+function cleanTemplates(done) {
+	del([FOLDER_DEV + '/partials']);
+	del([FOLDER_DEV + '/index.html']);
+	return done();
+};
+
+function cleanImg(done) {
+	del([FOLDER_DEV + '/img']);
+	return done();
+};
+
+function cleanIcons(done) {
+	del([FOLDER_DEV + '/css/styleIcons.css']);
+	del([FOLDER_DEV + '/fonts']);
+	return done();
+};
+
+function cleanJs(done) {
+	del([FOLDER_DEV + '/js/bundles']);
+	return done();
+};
+
+function connectServer() {
+	connect.server({
+		root: FOLDER_DEV,
+		port: 2173
+	});
+};
+
+function sassFunction() {
 	showComment('Changed SASS File');
 	return gulp.src(SRC_SASS_BASE + '/style.scss')
-	.pipe(sourcemaps.init())
-	.pipe(sass())
-	.pipe(autoprefixer())	
-	.pipe(rename('style.css'))
-	.pipe(sourcemaps.write('./maps'))
-	.pipe(gulp.dest(path.join(FOLDER_DEV, 'css'))).on('error', gutil.log);
-}));
+		.pipe(sourcemaps.init())
+		.pipe(sass())
+		.pipe(autoprefixer())
+		.pipe(rename('style.css'))
+		.pipe(sourcemaps.write('./maps'))
+		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css'))).on('error', gutil.log);
+};
+
+function copyTemplates() {
+	var destFolder = returnDestFolder();
+	showComment('Copying HTML Files');
+	return gulp.src(HTML_FILES)
+		.pipe(gulp.dest(destFolder)).on('error', gutil.log);
+};
+
+function copyImg() {
+	var destFolder = returnDestFolder();
+	showComment('Copying Images Files');
+	return gulp.src(IMAGES_FILES)
+		.pipe(gulp.dest(path.join(destFolder, 'img'))).on('error', gutil.log);
+};
+
+function copyIcons(done) {
+	var destFolder = returnDestFolder();
+	log('Copying Icons Files');
+	gulp.src(SRC_FONTS_BASE + '/**/*.css')
+		.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
+
+	gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
+		.pipe(gulp.dest(path.join(destFolder, 'fonts'))).on('error', gutil.log);
+	return done();
+};
+
+function copyJs() {
+	showComment('Copying JS Files');
+	var destFolder = returnDestFolder();
+	return gulp.src(JS_FILES_BUNDLES)
+		.pipe(gulp.dest(path.join(destFolder, 'js/bundles'))).on('error', gutil.log);
+}
+
+function jsConcat() {
+	return gulp.src(JS_FILES)
+		.pipe(sourcemaps.init())
+		.pipe(concat('script.js')) // concat pulls all our files together before minifying them
+		.pipe(sourcemaps.write('./maps'))
+		// .pipe(uglify())
+		.pipe(gulp.dest(path.join(FOLDER_DEV, 'js'))).on('error', gutil.log);
+}
+
+//************************************************************************************************
 
 
 //*************************************    SECCIÓN  util    *************************************
 
-function showComment(string){
-	if(runFirstTime) { return; }
+function showComment(string) {
+	if (runFirstTime) { return; }
 	log('');
 	log('------------------------------------------------');
 	log(string);
 	log('------------------------------------------------');
+	return;
 }
 
 function onError(err) {
-	log(err);
+	return log(err);
 }
 
-function returnDestFolder(){
+function returnDestFolder() {
 	var destFolder;
 	switch (ENVIRONMENT) {
 		case 'dev':
@@ -94,11 +205,11 @@ function returnDestFolder(){
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', gulp.series(clean, 'sass', function () {
+gulp.task('default', gulp.series(clean, 'sass', function nico() {
 	ENVIRONMENT = 'dev';
 	showComment('COMPLETE');
 	runFirstTime = false;
-}));	
+}));
 /*
 gulp.task('deploy', ['copyTemplates'], function () {
 	ENVIRONMENT = 'dep';
