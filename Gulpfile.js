@@ -1,5 +1,5 @@
 'use strict';
-
+process.argv.push('--silent');
 var gulp = require("gulp"),//http://gulpjs.com/
 	gutil = require("gulp-util"),//https://github.com/gulpjs/gulp-util
 	sass = require("gulp-sass"),//https://www.npmjs.org/package/gulp-sass
@@ -50,23 +50,29 @@ gulp.task("clean", gulp.series(clean));
 
 gulp.task("sass", gulp.series(sassFunction));
 
-gulp.task("copyTemplates", gulp.series(cleanTemplates, copyTemplates));
+gulp.task("copyTemplates", gulp.series(cleanTemplates, copyTemplatesFunction));
 
-gulp.task("copyImg", gulp.series(cleanImg, copyImg));
+gulp.task("copyImg", gulp.series(cleanImg, copyImgFunction));
 
-gulp.task("copyIcons", gulp.series(cleanIcons, copyIcons));
+gulp.task("copyIcons", gulp.series(cleanIcons, copyIconsFunction));
 
-gulp.task("copyJs", gulp.series(cleanJs, copyJs));
+gulp.task("copyJs", gulp.series(cleanJs, copyJsFunction));
 
-gulp.task('jsConcat', gulp.series('copyJs', jsConcat));
+gulp.task('jsConcat', gulp.series('copyJs', jsConcatFunction));
 
-gulp.task('connect', gulp.series(clean, gulp.parallel("copyTemplates", "sass", "jsConcat", "copyImg", "copyIcons"), connectServer));
+gulp.task("watch", function (done) {
+	gulp.watch(SASS_FILES, gulp.series('sass'));
+	gulp.watch(HTML_FILES, gulp.series('copyTemplates'));
+	gulp.watch(JS_FILES, gulp.series("jsConcat", "copyJs"));
+	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
+	return done();
 
-gulp.task("watch", function () {
-	gulp.watch(SASS_FILES).on('change', function (pathFile) {
+/*	gulp.watch(SASS_FILES).on('change', function (pathFile) {
 		gulp.series("sass");
 		log('El archivo modificado es: ' + pathFile);
 	});
+
+	
 	gulp.watch(HTML_FILES).on('change', function (pathFile) {
 		gulp.series("copyTemplates");
 		log('El archivo modificado es: ' + pathFile);
@@ -78,14 +84,16 @@ gulp.task("watch", function () {
 	gulp.watch(ICON_FILES).on('change', function (pathFile) {
 		gulp.series("copyIcons");
 		log('El archivo modificado es: ' + pathFile);
-	});
+	});*/
 });
+
+gulp.task('connect', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, copyJsFunction, copyImgFunction, copyIconsFunction), connectServer));
+
 
 //*************************************    SECCIÓN  Functions    *************************************
 
-function clean(done) {
-	del([FOLDER_DEV]);
-	return done();
+function clean() {
+	return del([FOLDER_DEV]);
 };
 
 function cleanTemplates(done) {
@@ -94,27 +102,26 @@ function cleanTemplates(done) {
 	return done();
 };
 
-function cleanImg(done) {
-	del([FOLDER_DEV + '/img']);
-	return done();
+function cleanImg() {
+	return del([FOLDER_DEV + '/img']);
 };
 
 function cleanIcons(done) {
 	del([FOLDER_DEV + '/css/styleIcons.css']);
-	del([FOLDER_DEV + '/fonts']);
+	del([FOLDER_DEV + '/fonts/*']);
 	return done();
 };
 
 function cleanJs(done) {
-	del([FOLDER_DEV + '/js/bundles']);
-	return done();
+	return del([FOLDER_DEV + '/js/bundles']);
 };
 
-function connectServer() {
+function connectServer(done) {
 	connect.server({
 		root: FOLDER_DEV,
 		port: 2173
 	});
+	return done();
 };
 
 function sassFunction() {
@@ -128,23 +135,22 @@ function sassFunction() {
 		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css'))).on('error', gutil.log);
 };
 
-function copyTemplates() {
+function copyTemplatesFunction() {
 	var destFolder = returnDestFolder();
 	showComment('Copying HTML Files');
 	return gulp.src(HTML_FILES)
 		.pipe(gulp.dest(destFolder)).on('error', gutil.log);
 };
 
-function copyImg() {
+function copyImgFunction() {
 	var destFolder = returnDestFolder();
 	showComment('Copying Images Files');
 	return gulp.src(IMAGES_FILES)
 		.pipe(gulp.dest(path.join(destFolder, 'img'))).on('error', gutil.log);
 };
 
-function copyIcons(done) {
+function copyIconsFunction(done) {
 	var destFolder = returnDestFolder();
-	log('Copying Icons Files');
 	gulp.src(SRC_FONTS_BASE + '/**/*.css')
 		.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
 
@@ -153,20 +159,22 @@ function copyIcons(done) {
 	return done();
 };
 
-function copyJs() {
-	showComment('Copying JS Files');
+function copyJsFunction(done) {
+	/*showComment('Copying JS Files');*/
 	var destFolder = returnDestFolder();
-	return gulp.src(JS_FILES_BUNDLES)
-		.pipe(gulp.dest(path.join(destFolder, 'js/bundles'))).on('error', gutil.log);
+	gulp.src(JS_FILES_BUNDLES)
+		.pipe(gulp.dest(destFolder + '/js/bundles'));
+	done();
 }
 
-function jsConcat() {
-	return gulp.src(JS_FILES)
+function jsConcatFunction(done) {
+	gulp.src(JS_FILES)
 		.pipe(sourcemaps.init())
 		.pipe(concat('script.js')) // concat pulls all our files together before minifying them
 		.pipe(sourcemaps.write('./maps'))
 		// .pipe(uglify())
 		.pipe(gulp.dest(path.join(FOLDER_DEV, 'js'))).on('error', gutil.log);
+	done();
 }
 
 //************************************************************************************************
@@ -205,9 +213,9 @@ function returnDestFolder() {
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', gulp.series(clean, 'sass', function nico() {
+gulp.task('default', gulp.series(clean, 'connect', 'watch', function() {
 	ENVIRONMENT = 'dev';
-	showComment('COMPLETE');
+	log('COMPLETE');
 	runFirstTime = false;
 }));
 /*
