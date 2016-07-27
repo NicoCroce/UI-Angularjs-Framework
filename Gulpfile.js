@@ -213,10 +213,10 @@ function returnDestFolder() {
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', gulp.series(clean, 'connect', 'watch', function() {
+gulp.task('default', gulp.series(clean, 'watch', 'connect', function runDev() {
 	ENVIRONMENT = 'dev';
-	log('COMPLETE');
 	runFirstTime = false;
+	showComment('YOU CAN START YOUR WORK... GOOD CODE');
 }));
 /*
 gulp.task('deploy', ['copyTemplates'], function () {
