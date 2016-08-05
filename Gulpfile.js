@@ -46,6 +46,8 @@ var runFirstTime = true;
 // require('gulp-stats')(gulp);
 
 
+gulp.task('help', gulp.series(showHelp));
+
 gulp.task("clean", gulp.series(clean));
 
 gulp.task("sass", gulp.series(sassFunction));
@@ -209,6 +211,18 @@ function returnDestFolder() {
 			break;
 	}
 	return destFolder;
+}
+
+function showHelp(done) {
+	runFirstTime = false;
+	showComment("I can help you");
+	log("");
+	log("Run 'gulp' to compile the whole project and start working.");
+	log("If you modify an HTML, CSS, Js, different font or image files a task that will process the information will run.");
+	log("");
+	log("----------------------------------------------------------");
+	runFirstTime = true;
+	done();
 }
 
 //*************************************    SECCIÓN  runner    *************************************
