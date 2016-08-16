@@ -89,7 +89,7 @@ gulp.task("watch", function (done) {
 	});*/
 });
 
-gulp.task('connect', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, copyJsFunction, copyImgFunction, copyIconsFunction), connectServer));
+gulp.task('connect', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
 
 
 //*************************************    SECCIÓN  Functions    *************************************
