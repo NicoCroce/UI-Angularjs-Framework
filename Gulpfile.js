@@ -23,6 +23,7 @@ var FOLDER_ASSETS = 'assets';
 var FOLDER_DEV = 'dev';
 var FOLDER_BUILD = 'build';
 var FOLDER_DIST = 'dist';
+var BOWER_COMPONENTS = 'bower_components';
 
 var SRC_SASS_BASE = path.join(FOLDER_ASSETS, 'styles');
 var SRC_IMAGES_BASE = path.join(FOLDER_ASSETS, 'images');
@@ -61,6 +62,8 @@ gulp.task("copyIcons", gulp.series(cleanIcons, copyIconsFunction));
 gulp.task("copyJs", gulp.series(cleanJs, copyJsFunction));
 
 gulp.task('jsConcat', gulp.series('copyJs', jsConcatFunction));
+
+gulp.task('init', gulp.series(copyBower));
 
 gulp.task("watch", function (done) {
 	gulp.watch(SASS_FILES, gulp.series('sass'));
@@ -135,6 +138,15 @@ function sassFunction() {
 		.pipe(rename('style.css'))
 		.pipe(sourcemaps.write('./maps'))
 		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css'))).on('error', gutil.log);
+};
+
+function copyBower(done) {
+	gulp.src(BOWER_COMPONENTS + '/jeet/scss/jeet/**/*')
+		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet')).on('error', gutil.log);
+
+	gulp.src(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js')
+		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/bundles/min/')).on('error', gutil.log);
+	return done();
 };
 
 function copyTemplatesFunction() {

@@ -1,0 +1,21 @@
+{
+  "name": "UI-Premium-Framework",
+  "version": "1.0.0",
+  "homepage": "https://github.com/NicoCroce/UI-Premium-Framework",
+  "authors": [
+    "Nico Croce <ingcrocenicolas@outlook.com>"
+  ],
+  "description": "UI/Front",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "~3.1.0",
+    "jeet": "https://github.com/mojotech/jeet.git#~6.1.4"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
