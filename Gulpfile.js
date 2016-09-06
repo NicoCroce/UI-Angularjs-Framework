@@ -8,7 +8,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	rename = require('gulp-rename'),//https://www.npmjs.org/package/gulp-rename
 	sourcemaps = require('gulp-sourcemaps'), //Genera un mapa de referencias para los archivos. 
 	path = require('path'), //Es de Node. Concatena.
-	debug = require('gulp-debug'),
+	merge = require('merge-stream'),
 	connect = require('gulp-connect'),
 	concat = require('gulp-concat'),
 	changed = require('gulp-changed'),
@@ -63,8 +63,6 @@ gulp.task("copyJs", gulp.series(cleanJs, copyJsFunction));
 
 gulp.task('jsConcat', gulp.series('copyJs', jsConcatFunction));
 
-gulp.task('init', gulp.series(copyBower));
-
 gulp.task("watch", function (done) {
 	gulp.watch(SASS_FILES, gulp.series('sass'));
 	gulp.watch(HTML_FILES, gulp.series('copyTemplates'));
@@ -72,27 +70,27 @@ gulp.task("watch", function (done) {
 	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
 	return done();
 
-/*	gulp.watch(SASS_FILES).on('change', function (pathFile) {
-		gulp.series("sass");
-		log('El archivo modificado es: ' + pathFile);
-	});
-
+	/*	gulp.watch(SASS_FILES).on('change', function (pathFile) {
+			gulp.series("sass");
+			log('El archivo modificado es: ' + pathFile);
+		});
 	
-	gulp.watch(HTML_FILES).on('change', function (pathFile) {
-		gulp.series("copyTemplates");
-		log('El archivo modificado es: ' + pathFile);
-	});
-	gulp.watch(JS_FILES).on('change', function (pathFile) {
-		gulp.series("jsConcat", "copyJs");
-		log('El archivo modificado es: ' + pathFile);
-	});
-	gulp.watch(ICON_FILES).on('change', function (pathFile) {
-		gulp.series("copyIcons");
-		log('El archivo modificado es: ' + pathFile);
-	});*/
+		
+		gulp.watch(HTML_FILES).on('change', function (pathFile) {
+			gulp.series("copyTemplates");
+			log('El archivo modificado es: ' + pathFile);
+		});
+		gulp.watch(JS_FILES).on('change', function (pathFile) {
+			gulp.series("jsConcat", "copyJs");
+			log('El archivo modificado es: ' + pathFile);
+		});
+		gulp.watch(ICON_FILES).on('change', function (pathFile) {
+			gulp.series("copyIcons");
+			log('El archivo modificado es: ' + pathFile);
+		});*/
 });
 
-gulp.task('connect', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
+gulp.task('connect', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
 
 
 //*************************************    SECCIÓN  Functions    *************************************
@@ -140,13 +138,13 @@ function sassFunction() {
 		.pipe(gulp.dest(path.join(FOLDER_DEV, 'css'))).on('error', gutil.log);
 };
 
-function copyBower(done) {
-	gulp.src(BOWER_COMPONENTS + '/jeet/scss/jeet/**/*')
-		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet')).on('error', gutil.log);
+function copyBower() {
+	var jeet = gulp.src(BOWER_COMPONENTS + '/jeet/scss/jeet/**/*')
+		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet'));
+	var jqueryFiles = gulp.src(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js')
+		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/bundles/min/'));
 
-	gulp.src(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js')
-		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/bundles/min/')).on('error', gutil.log);
-	return done();
+	return merge(jeet, jqueryFiles);
 };
 
 function copyTemplatesFunction() {
@@ -165,20 +163,19 @@ function copyImgFunction() {
 
 function copyIconsFunction(done) {
 	var destFolder = returnDestFolder();
-	gulp.src(SRC_FONTS_BASE + '/**/*.css')
+	var copyCss = gulp.src(SRC_FONTS_BASE + '/**/*.css')
 		.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
 
-	gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
+	var copyFonts = gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
 		.pipe(gulp.dest(path.join(destFolder, 'fonts'))).on('error', gutil.log);
-	return done();
+	return merge(copyCss, copyFonts);
 };
 
-function copyJsFunction(done) {
+function copyJsFunction() {
 	/*showComment('Copying JS Files');*/
 	var destFolder = returnDestFolder();
-	gulp.src(JS_FILES_BUNDLES)
+	return gulp.src(JS_FILES_BUNDLES)
 		.pipe(gulp.dest(destFolder + '/js/bundles'));
-	done();
 }
 
 function jsConcatFunction(done) {
@@ -239,7 +236,7 @@ function showHelp(done) {
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', gulp.series(clean, 'watch', 'connect', function runDev() {
+gulp.task('default', gulp.series(clean, 'connect', 'watch', function runDev() {
 	ENVIRONMENT = 'dev';
 	runFirstTime = false;
 	showComment('YOU CAN START YOUR WORK... GOOD CODE');
