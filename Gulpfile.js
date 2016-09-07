@@ -63,6 +63,8 @@ gulp.task("copyJs", gulp.series(cleanJs, copyJsFunction));
 
 gulp.task('jsConcat', gulp.series('copyJs', jsConcatFunction));
 
+gulp.task('copyBower', gulp.series(copyBower));
+
 gulp.task("watch", function (done) {
 	gulp.watch(SASS_FILES, gulp.series('sass'));
 	gulp.watch(HTML_FILES, gulp.series('copyTemplates'));
@@ -143,8 +145,10 @@ function copyBower() {
 		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet'));
 	var jqueryFiles = gulp.src(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js')
 		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/bundles/min/'));
+	var normalize = gulp.src(BOWER_COMPONENTS + '/normalize-scss/sass/**/*')
+		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/normalize/'));
 
-	return merge(jeet, jqueryFiles);
+	return merge(jeet, jqueryFiles, normalize);
 };
 
 function copyTemplatesFunction() {
