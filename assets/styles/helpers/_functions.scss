@@ -1,0 +1,45 @@
+/*
+  =========================================
+
+	  FUNCTIONS
+
+	=========================================
+*/
+
+@import "../core/settings";
+
+// -------------------------------------
+//   Base
+// -------------------------------------
+// ----- Convert to EMs function ----- //
+@function toem($target, $context: $font-size) {
+   @if $target == 0 { @return 0 }
+   @return $target / $context + 0em;
+}
+
+// ----- Convert to REMs function ----- //
+@function torem($target, $context: $font-size) {
+   @if $target == 0 { @return 0 }
+   @return $target / $context + 0rem;
+}
+
+// ----- Remove unit from value ----- //
+@function strip-unit($value) {
+	@return $value / ($value * 0 + 1);
+}
+
+// ----- Recalculate responsive breakpoints ----- //
+@function bp-calculation($breakpoint, $type){
+  @if($type == "up") {@return $breakpoint + 1;}
+  @elseif($type == "down") {@return $breakpoint - 1;}
+}
+
+// ----- Lighten a color ----- //
+@function tint($color, $percentage) {
+  @return mix(white, $color, $percentage);
+}
+
+// ----- Darken a color ----- //
+@function shade($color, $percentage) {
+  @return mix(black, $color, $percentage);
+}

@@ -1,0 +1,84 @@
+/*
+  =========================================
+
+	  MIXINS
+
+	=========================================
+*/
+
+// -------------------------------------
+//   Base
+// -------------------------------------
+
+// -----Debug layout by drawing borders around every element ----- //
+// Uncomment the following line to debug layout's box model.
+// @include edit();
+
+@mixin debug-layout() {
+	* { outline: 2px dotted red; }
+	* * { outline: 2px dotted green; }
+	* * * { outline: 2px dotted orange; }
+	* * * * { outline: 2px dotted blue; }
+	* * * * * { outline: 1px solid red; }
+	* * * * * * { outline: 1px solid green; }
+	* * * * * * * { outline: 1px solid orange; }
+	* * * * * * * * { outline: 1px solid blue; }
+}
+
+// ----- Control element's aspect ratio ----- //
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+  &:before {
+    display: block;
+    content: "";
+    width: 100%;
+    padding-top: ($height / $width) * 100%;
+  }
+  > .content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+// ----- Style input's placeholder ----- //
+@mixin placeholder {
+  ::-webkit-input-placeholder {@content;}
+  :-moz-placeholder           {@content;}
+  ::-moz-placeholder          {@content;}
+  :-ms-input-placeholder      {@content;}
+}
+
+// ----- Create a single media condition out of a map of queries ----- //
+@mixin media($queries) {
+  @if length($queries) == 0 {
+    @content;
+  } @else {
+    $first-key: nth(map-keys($queries), 1);
+
+    @media ($first-key: map-get($queries, $first-key)) {
+      $queries: map-remove($queries, $first-key);
+
+      @include media($queries) {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin respond-to($breakpoint) {
+  // Get the query map for $msuif-breakpoints map
+  $queries: map-get($msuif-breakpoints, $breakpoint);
+
+  // If there is no query called $breakpoint in map, throw an error
+  @if not $queries {
+    @error "No value could be retrieved from `#{$breakpoint}`. Please make sure it is defined in `$msuif-breakpoints` map.";
+  }
+
+  // Include the media mixin with $queries
+  @include media($queries) {
+    @content;
+  }
+}

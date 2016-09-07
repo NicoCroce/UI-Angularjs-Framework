@@ -1,0 +1,48 @@
+/*
+  =========================================
+
+	  PLACEHOLDERS
+
+	=========================================
+*/
+
+@import "../core/settings";
+
+// -------------------------------------
+//   Base
+// -------------------------------------
+%text--small {
+  font-size: 80%
+}
+
+%text--left {
+  text-align: left
+}
+
+%text--right {
+  text-align: right
+}
+
+%text--center {
+  text-align: center
+}
+
+%text--light {
+  font-weight: $font-weight-light
+}
+
+%text--regular {
+  font-weight: $font-weight-regular
+}
+
+%text--semibold {
+  font-weight: $font-weight-semibold
+}
+
+%text--bold {
+  font-weight: $font-weight-bold
+}
+
+%text--uppercase {
+  text-transform: uppercase
+}
