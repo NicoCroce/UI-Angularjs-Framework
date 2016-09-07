@@ -8,8 +8,6 @@
 	=========================================
 */
 
-@import "./typography";
-
 // -------------------------------------
 //   Base
 // -------------------------------------
@@ -22,12 +20,12 @@
 body,
 html {
   overflow-x: hidden;
-  font: $msuif-font;
-  color: $msuif-font-color;
+  font: $font;
+  color: $font-color;
 }
 
 body {
-  background-color: $msuif-background;
+  background-color: $background;
 }
 
 img {
@@ -72,5 +70,5 @@ button {
 
 a {
 	text-decoration: none;
-  transition: all $msuif-transition-duration $msuif-transition-timing;
+  transition: all $transition-duration $transition-timing;
 }
