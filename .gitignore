@@ -4,4 +4,4 @@ dist/
 bower_components/
 assets/js/bundles/min/jquery.min.js
 assets/styles/libs/jeet/
-assets/styles/libs/
+assets/styles/libs/normalize/
