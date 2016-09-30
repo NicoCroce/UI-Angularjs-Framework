@@ -11,7 +11,6 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	merge = require('merge-stream'),
 	connect = require('gulp-connect'),
 	concat = require('gulp-concat'),
-	changed = require('gulp-changed'),
 	del = require('del'),
 	// imagemin = require('gulp-imagemin'),
 	log = gutil.log;
