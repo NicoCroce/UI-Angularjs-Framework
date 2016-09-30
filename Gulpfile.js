@@ -13,7 +13,6 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	concat = require('gulp-concat'),
 	changed = require('gulp-changed'),
 	del = require('del'),
-	cleanDest = require('gulp-clean-dest'),
 	// imagemin = require('gulp-imagemin'),
 	log = gutil.log;
 
