@@ -68,26 +68,8 @@ gulp.task("watch", function (done) {
 	gulp.watch(HTML_FILES, gulp.series('copyTemplates'));
 	gulp.watch(JS_FILES, gulp.series("jsConcat", "copyJs"));
 	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
+	gulp.watch(IMAGES_FILES, gulp.series("copyImg"));
 	return done();
-
-	/*	gulp.watch(SASS_FILES).on('change', function (pathFile) {
-			gulp.series("sass");
-			log('El archivo modificado es: ' + pathFile);
-		});
-	
-		
-		gulp.watch(HTML_FILES).on('change', function (pathFile) {
-			gulp.series("copyTemplates");
-			log('El archivo modificado es: ' + pathFile);
-		});
-		gulp.watch(JS_FILES).on('change', function (pathFile) {
-			gulp.series("jsConcat", "copyJs");
-			log('El archivo modificado es: ' + pathFile);
-		});
-		gulp.watch(ICON_FILES).on('change', function (pathFile) {
-			gulp.series("copyIcons");
-			log('El archivo modificado es: ' + pathFile);
-		});*/
 });
 
 gulp.task('connect', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction), connectServer));

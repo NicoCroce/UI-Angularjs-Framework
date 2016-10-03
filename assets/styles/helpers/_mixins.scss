@@ -14,6 +14,23 @@
 // Uncomment the following line to debug layout's box model.
 // @include edit();
 
+@mixin transition($time:.3, $tFunction: ease){
+  transition: all #{$time}s #{$tFunction};
+}
+
+@mixin vertical-align($position: relative) {
+  position: $position;
+  top: 50%; 
+  transform: perspective(1px) translateY(-50%);
+}
+
+@mixin h-al-center() {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
 @mixin debug-layout() {
 	* { outline: 2px dotted red; }
 	* * { outline: 2px dotted green; }
