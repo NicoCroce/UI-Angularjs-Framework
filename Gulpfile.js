@@ -1,5 +1,7 @@
 'use strict';
-process.argv.push('--silent');
+
+var  serverPort = 2173;
+
 var gulp = require("gulp"),//http://gulpjs.com/
 	gutil = require("gulp-util"),//https://github.com/gulpjs/gulp-util
 	sass = require("gulp-sass"),//https://www.npmjs.org/package/gulp-sass
@@ -81,6 +83,10 @@ function clean() {
 	return del([FOLDER_DEV]);
 };
 
+function setEnvironment (env) {
+	ENVIRONMENT = env;
+}
+
 function cleanTemplates(done) {
 	del([FOLDER_DEV + '/partials']);
 	del([FOLDER_DEV + '/index.html']);
@@ -104,7 +110,7 @@ function cleanJs(done) {
 function connectServer(done) {
 	connect.server({
 		root: FOLDER_DEV,
-		port: 2173
+		port: serverPort
 	});
 	return done();
 };
@@ -220,10 +226,10 @@ function showHelp(done) {
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', gulp.series(clean, 'connect', 'watch', function runDev() {
+gulp.task('default', gulp.series(setEnvironment(), clean, 'connect', 'watch', function runDev() {
 	ENVIRONMENT = 'dev';
 	runFirstTime = false;
-	showComment('YOU CAN START YOUR WORK... GOOD CODE');
+	showComment('YOU CAN START YOUR WORK in http://localhost:' + serverPort + ' GOOD CODE...');
 }));
 /*
 gulp.task('deploy', ['copyTemplates'], function () {
