@@ -83,8 +83,14 @@ function clean() {
 	return del([FOLDER_DEV]);
 };
 
-function setEnvironment (env) {
-	ENVIRONMENT = env;
+function setEnvironmentEnv (done) {
+	ENVIRONMENT = 'env';
+	done();
+}
+
+function setEnvironmentProd () {
+	ENVIRONMENT = 'prod';
+	done();
 }
 
 function cleanTemplates(done) {
@@ -226,17 +232,21 @@ function showHelp(done) {
 
 //*************************************    SECCIÓN  runner    *************************************
 
-gulp.task('default', gulp.series(setEnvironment(), clean, 'connect', 'watch', function runDev() {
-	ENVIRONMENT = 'dev';
+gulp.task('default', gulp.series(setEnvironmentEnv, clean, 'connect', 'watch', function runDev() {
 	runFirstTime = false;
 	showComment('YOU CAN START YOUR WORK in http://localhost:' + serverPort + ' GOOD CODE...');
 }));
-/*
-gulp.task('deploy', ['copyTemplates'], function () {
-	ENVIRONMENT = 'dep';
+
+gulp.task('deploy', gulp.series(setEnvironmentProd, clean, 'connect', 'watch', function runDev() {
 	runFirstTime = false;
-	showComment('COMPLETE DEPLOY');
-});	
-*/
+	showComment('IS DEPLOYED');
+}));
+
+// gulp.task('deploy', ['copyTemplates'], function () {
+// 	ENVIRONMENT = 'dep';
+// 	runFirstTime = false;
+// 	showComment('COMPLETE DEPLOY');
+// });	
+
 //************************************************************************************
 
