@@ -14,6 +14,7 @@ var gulp = require("gulp"),//http://gulpjs.com/
 	connect = require('gulp-connect'),
 	concat = require('gulp-concat'),
 	del = require('del'),
+	gulpif = require('gulp-if'),
 	// imagemin = require('gulp-imagemin'),
 	log = gutil.log;
 
@@ -38,7 +39,7 @@ var JS_FILES_BUNDLES = path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*';
 var IMAGES_FILES = SRC_IMAGES_BASE + '/**/*';
 var ICON_FILES = SRC_FONTS_BASE + '/**/*';
 
-var ENVIRONMENT;  // 'dev' | 'dep' 
+var ENVIRONMENT = FOLDER_DEV; 
 var runFirstTime = true;
 
 
@@ -76,6 +77,8 @@ gulp.task("watch", function (done) {
 
 gulp.task('connect', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
 
+gulp.task('deployTasks', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction)));
+
 
 //*************************************    SECCIÓN  Functions    *************************************
 
@@ -84,12 +87,12 @@ function clean() {
 };
 
 function setEnvironmentEnv (done) {
-	ENVIRONMENT = 'env';
+	ENVIRONMENT = FOLDER_DEV;
 	done();
 }
 
-function setEnvironmentProd () {
-	ENVIRONMENT = 'prod';
+function setEnvironmentProd (done) {
+	ENVIRONMENT = FOLDER_BUILD;
 	done();
 }
 
@@ -144,34 +147,30 @@ function copyBower() {
 };
 
 function copyTemplatesFunction() {
-	var destFolder = returnDestFolder();
 	showComment('Copying HTML Files');
 	return gulp.src(HTML_FILES)
-		.pipe(gulp.dest(destFolder)).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT)).on('error', gutil.log);
 };
 
 function copyImgFunction() {
-	var destFolder = returnDestFolder();
 	showComment('Copying Images Files');
 	return gulp.src(IMAGES_FILES)
-		.pipe(gulp.dest(path.join(destFolder, 'img'))).on('error', gutil.log);
+		.pipe(gulp.dest(path.join(ENVIRONMENT, 'img'))).on('error', gutil.log);
 };
 
 function copyIconsFunction(done) {
-	var destFolder = returnDestFolder();
 	var copyCss = gulp.src(SRC_FONTS_BASE + '/**/*.css')
-		.pipe(gulp.dest(path.join(destFolder, 'css'))).on('error', gutil.log);
+		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css'))).on('error', gutil.log);
 
 	var copyFonts = gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
-		.pipe(gulp.dest(path.join(destFolder, 'fonts'))).on('error', gutil.log);
+		.pipe(gulp.dest(path.join(ENVIRONMENT, 'fonts'))).on('error', gutil.log);
 	return merge(copyCss, copyFonts);
 };
 
 function copyJsFunction() {
 	/*showComment('Copying JS Files');*/
-	var destFolder = returnDestFolder();
 	return gulp.src(JS_FILES_BUNDLES)
-		.pipe(gulp.dest(destFolder + '/js/bundles'));
+		.pipe(gulp.dest(ENVIRONMENT + '/js/bundles'));
 }
 
 function jsConcatFunction(done) {
@@ -202,22 +201,6 @@ function onError(err) {
 	return log(err);
 }
 
-function returnDestFolder() {
-	var destFolder;
-	switch (ENVIRONMENT) {
-		case 'dev':
-			destFolder = FOLDER_DEV;
-			break;
-		case 'dep':
-			destFolder = FOLDER_DIST;
-			break;
-		default:
-			destFolder = FOLDER_DEV;
-			break;
-	}
-	return destFolder;
-}
-
 function showHelp(done) {
 	runFirstTime = false;
 	showComment("I can help you");
@@ -237,9 +220,10 @@ gulp.task('default', gulp.series(setEnvironmentEnv, clean, 'connect', 'watch', f
 	showComment('YOU CAN START YOUR WORK in http://localhost:' + serverPort + ' GOOD CODE...');
 }));
 
-gulp.task('deploy', gulp.series(setEnvironmentProd, clean, 'connect', 'watch', function runDev() {
+gulp.task('deploy', gulp.series(setEnvironmentProd, clean, 'deployTasks', function runDev(done) {
 	runFirstTime = false;
 	showComment('IS DEPLOYED');
+	done();
 }));
 
 // gulp.task('deploy', ['copyTemplates'], function () {
