@@ -6,7 +6,9 @@
   "scripts": {
     "update": "npm install && bower install",
     "gulp": "npm install gulpjs/gulp-cli -g",
-    "first-run": "npm install bower && npm run gulp && npm run update"
+    "bower": "npm install bower",
+    "first-run": "npm run bower && npm run update",
+    "install-gulp-run": "npm run bower && npm run gulp && npm run update"
   },
   "repository": {
     "type": "git",
@@ -41,3 +43,4 @@
     "gulp-install": "^0.6.0"
   }
 }
+
