@@ -40,7 +40,7 @@
     "merge-stream": "^1.0.0"
   },
   "dependencies": {
-    "gulp-install": "^0.6.0"
+    "gulp-install": "^0.6.0",
+    "node-sass": "^4.3.0"
   }
 }
-
