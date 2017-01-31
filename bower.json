@@ -9,7 +9,6 @@
 	"license": "MIT",
 	"dependencies": {
 		"jquery": "~3.1.0",
-		"jeet": "https://github.com/mojotech/jeet.git#~6.1.4",
 		"normalize-scss": "normalize.scss#^5.0.3",
 		"angular-ui-router": "0.3.1",
 		"angular-resource": "^1.6.0"

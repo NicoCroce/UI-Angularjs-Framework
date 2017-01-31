@@ -2,7 +2,8 @@
 
 var  serverPort 	= 2173;
 
-var gulp 			= require("gulp"),//http://gulpjs.com/
+var vendorLibraries = require('./config/vendor-libraries'),
+	gulp 			= require("gulp"),//http://gulpjs.com/
 	gutil 			= require("gulp-util"),//https://github.com/gulpjs/gulp-util
 	sass 			= require("gulp-sass"),//https://www.npmjs.org/package/gulp-sass
 	autoprefixer 	= require('gulp-autoprefixer'),//https://www.npmjs.org/package/gulp-autoprefixer
@@ -39,7 +40,7 @@ var SRC_SASS_BASE 		= path.join(FOLDER_ASSETS, 'styles'),
 	SRC_IMAGES_BASE 	= path.join(FOLDER_ASSETS, 'images'),
 	SRC_FONTS_BASE 		= path.join(FOLDER_ASSETS, 'icons'),
 	SRC_JAVASCRIPT_BASE = path.join(FOLDER_ASSETS, 'js'),
-	SRC_JAVASCRIPT_LIBS	= path.join(FOLDER_ASSETS, 'js/min'),
+	/*SRC_JAVASCRIPT_LIBS	= path.join(FOLDER_ASSETS, 'js/min'),*/
 	SRC_DATA_BASE 		= path.join(FOLDER_ASSETS, 'data'),
 	SRC_APP_BASE 		= path.join(FOLDER_ASSETS, 'app');
 
@@ -54,46 +55,15 @@ var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
 	DATA_FILES 			= SRC_DATA_BASE + '/**/*.json',
 	FILES_DATA 			= path.join(FOLDER_ASSETS, 'data') + '/**/*';
 
-// Use this line if you need specified files order to concatenate
-// Use this line if you need specified files order to concatenate
-var JS_FILES_LIBS_ORDER = [
-	SRC_JAVASCRIPT_LIBS +'/jquery.min.js',
-	SRC_JAVASCRIPT_LIBS + '/angular.min.js',
-	SRC_JAVASCRIPT_LIBS + '/*.js'
-];
 
-var JS_FILES_APP_ORDER = [
-	SRC_APP_BASE + '/app.config.js',
-	SRC_APP_BASE + '/app.modules.js',
-	SRC_APP_BASE + '/**/*.js'
-];
+var JS_FILES_LIBS_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
+
+var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE);
 
 var ENVIRONMENT 		= FOLDER_DEV,
 	runFirstTime 		= true;
 
-var uglifyOptions = {
-	compress: {
-		sequences     : true,  // join consecutive statemets with the “comma operator”
-		properties    : true,  // optimize property access: a["foo"] → a.foo
-		dead_code     : true,  // discard unreachable code
-		drop_debugger : true,  // discard “debugger” statements
-		unsafe        : false, // some unsafe optimizations (see below)
-		conditionals  : true,  // optimize if-s and conditional expressions
-		comparisons   : true,  // optimize comparisons
-		evaluate      : true,  // evaluate constant expressions
-		booleans      : true,  // optimize boolean expressions
-		loops         : true,  // optimize loops
-		unused        : true,  // drop unused variables/functions
-		hoist_funs    : true,  // hoist function declarations
-		hoist_vars    : false, // hoist variable declarations
-		if_return     : true,  // optimize if-s followed by return/continue
-		join_vars     : true,  // join var declarations
-		cascade       : true,  // try to cascade `right` into `left` in sequences
-		side_effects  : true,  // drop side-effect-free statements
-		warnings      : true,  // warn about potentially dangerous optimizations/code
-		global_defs   : {}     // global definitions
-	}
-};
+var uglifyOptions = vendorLibraries.getUglifySettings;
 
 //*************************************    SECCIÓN  Tasks    *************************************
 
@@ -209,20 +179,11 @@ function sassFunction() {
 };
 
 function copyBower() {
-	var jeet = gulp.src(BOWER_COMPONENTS + '/jeet/scss/jeet/**/*')
+	var jeet = gulp.src('node_modules/jeet/scss/**/*')
 		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet'));
-	var jqueryFiles = gulp.src(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js')
-		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/min'));
 	var normalize = gulp.src(BOWER_COMPONENTS + '/normalize-scss/sass/**/*')
-		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/normalize/'));
-	var angular = gulp.src(BOWER_COMPONENTS + '/angular/angular.min.js')
-		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/min'));
-	var uiRouter = gulp.src(BOWER_COMPONENTS + '/angular-ui-router/release/angular-ui-router.min.js')
-		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/min'));
-	var angularResource = gulp.src(BOWER_COMPONENTS + '/angular-resource/angular-resource.min.js')
-		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/min'));
-		
-	return merge(jeet, normalize, angular, uiRouter, angularResource);
+		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/normalize/'));		
+	return merge(jeet, normalize);
 };
 
 function copyTemplatesFunction() {
