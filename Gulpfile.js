@@ -18,7 +18,7 @@ var vendorLibraries = require('./config/vendor-libraries'),
 	gpUglify 		= require('gulp-uglify'),
 	imagemin 		= require('gulp-imagemin'),
 	gulpif 			= require('gulp-if'),
-
+	browserSync 	= require('browser-sync').create(),
 	// imagemin = require('gulp-imagemin'),
 	log 			= gutil.log;
 
@@ -150,11 +150,26 @@ function cleanData(){
 }
 
 function connectServer(done) {
-	connect.server({
+/*	connect.server({
 		root: ENVIRONMENT,
 		port: serverPort
+	});*/
+	browserSync.init({
+		port: serverPort,
+		server: {
+			baseDir: ENVIRONMENT
+		},
+		ui: {
+			port: 2222,
+		},
+		files: ["**/*.js", "**/*.html", "**/*.css"]
 	});
+
 	return done();
+/*
+
+
+	return done();*/
 };
 
 function copyData(done) {
@@ -186,7 +201,7 @@ function copyBower() {
 	return merge(jeet, normalize);
 };
 
-function copyTemplatesFunction() {
+function copyTemplatesFunction(done) {
 	showComment('Copying HTML Files');
 	var copyIndex = gulp.src(SRC_APP_BASE + '/index.html') //Copy only index.html file.
 		.pipe(gulp.dest(ENVIRONMENT)).on('error', gutil.log);
@@ -194,6 +209,7 @@ function copyTemplatesFunction() {
 	var copyFiles = gulp.src([APP_HTML_FILES, '!' + SRC_APP_BASE + '/index.html']) //Copy all files except index.html
 		.pipe(gulp.dest(ENVIRONMENT + '/templates/')).on('error', gutil.log);
 	return merge(copyIndex, copyFiles);
+	
 };
 
 function copyImgFunction() {

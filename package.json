@@ -21,8 +21,9 @@
   },
   "homepage": "https://github.com/NicoCroce/UI-Premium-Framework",
   "devDependencies": {
+    "browser-sync": "^2.18.7",
     "del": "^2.2.0",
-    "gulp": "gulpjs/gulp#4.0",
+    "gulp": "github:gulpjs/gulp#4.0",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-clean-css": "^2.0.13",
     "gulp-cli": "^1.2.2",
