@@ -2,6 +2,10 @@
     'use strict';
     angular
         .module('app')
-        .controller('IndexController', ['$scope', function ($scope) {            
-        }]);
+        .controller('IndexController', IndexController);
+        IndexController.$inject = ['$scope'];
+        
+        function IndexController ($scope) {
+            $scope.title = "Prueba Index"          
+        };
 })();

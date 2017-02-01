@@ -6,3 +6,4 @@ assets/js/bundles/min/jquery.min.js
 assets/styles/libs/jeet/
 assets/styles/libs/normalize/
 build/
+debug.log

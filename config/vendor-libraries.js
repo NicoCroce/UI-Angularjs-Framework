@@ -6,7 +6,9 @@ exports.getFiles = function (BOWER_COMPONENTS) {
     return [
         path.join(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js'),
         path.join(BOWER_COMPONENTS + '/angular/angular.min.js'),
-        path.join(BOWER_COMPONENTS + '/*.js')
+        path.join(BOWER_COMPONENTS + '/angular-resource/angular-resource.min.js'),
+        path.join(BOWER_COMPONENTS + '/angular-ui-router/release/angular-ui-router.min.js')
+        /*path.join(BOWER_COMPONENTS + ''),*/
     ];
 };
 
