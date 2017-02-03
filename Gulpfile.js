@@ -55,6 +55,8 @@ var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
 	DATA_FILES 			= SRC_DATA_BASE + '/**/*.json',
 	FILES_DATA 			= path.join(FOLDER_ASSETS, 'data') + '/**/*';
 
+var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**/*.html', FOLDER_DEV + '/js/*.js'];
+
 
 var JS_FILES_LIBS_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
 
@@ -96,6 +98,7 @@ gulp.task("watch", function (done) {
 	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
 	gulp.watch(IMAGES_FILES, gulp.series("copyImg"));
 	gulp.watch(DATA_FILES, gulp.series('copyData'));
+	gulp.watch(DEV_HTML_JS_FILES).on('change', browserSync.reload);
 	return done();
 });
 
@@ -161,8 +164,7 @@ function connectServer(done) {
 		},
 		ui: {
 			port: 2222,
-		},
-		files: ["**/*.js", "**/*.html", "**/*.css"]
+		}
 	});
 
 	return done();
@@ -190,7 +192,8 @@ function sassFunction() {
 		.pipe(rename('style.css'))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, cleanCSS()))
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css'))).on('error', gutil.log);
+		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css')))
+		.pipe(browserSync.stream()).on('error', gutil.log);
 };
 
 function copyBower() {
