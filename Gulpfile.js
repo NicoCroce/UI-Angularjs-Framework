@@ -12,14 +12,12 @@ var vendorLibraries = require('./config/vendor-libraries'),
 	sourcemaps 		= require('gulp-sourcemaps'), //Genera un mapa de referencias para los archivos. 
 	path 			= require('path'), //Es de Node. Concatena.
 	merge 			= require('merge-stream'),
-	connect 		= require('gulp-connect'),
 	concat 			= require('gulp-concat'),
 	del 			= require('del'),
 	gpUglify 		= require('gulp-uglify'),
 	imagemin 		= require('gulp-imagemin'),
 	gulpif 			= require('gulp-if'),
 	browserSync 	= require('browser-sync').create(),
-	// imagemin = require('gulp-imagemin'),
 	log 			= gutil.log;
 
 
@@ -34,13 +32,6 @@ var SRC_SASS_BASE 		= path.join(FOLDER_ASSETS, 'styles'),
 	SRC_IMAGES_BASE 	= path.join(FOLDER_ASSETS, 'images'),
 	SRC_FONTS_BASE 		= path.join(FOLDER_ASSETS, 'icons'),
 	SRC_JAVASCRIPT_BASE = path.join(FOLDER_ASSETS, 'js'),
-	SRC_HTML_BASE 		= path.join(FOLDER_ASSETS, 'templates');
-
-var SRC_SASS_BASE 		= path.join(FOLDER_ASSETS, 'styles'),
-	SRC_IMAGES_BASE 	= path.join(FOLDER_ASSETS, 'images'),
-	SRC_FONTS_BASE 		= path.join(FOLDER_ASSETS, 'icons'),
-	SRC_JAVASCRIPT_BASE = path.join(FOLDER_ASSETS, 'js'),
-	/*SRC_JAVASCRIPT_LIBS	= path.join(FOLDER_ASSETS, 'js/min'),*/
 	SRC_DATA_BASE 		= path.join(FOLDER_ASSETS, 'data'),
 	SRC_APP_BASE 		= path.join(FOLDER_ASSETS, 'app');
 
@@ -48,8 +39,7 @@ var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
 	APP_FILES 			= SRC_APP_BASE + '/**/*',
 	APP_HTML_FILES 		= SRC_APP_BASE + '/**/*.html',
 	APP_JS_FILES 		= SRC_APP_BASE + '/**/*.js',
-	JS_FILES 			= SRC_JAVASCRIPT_BASE + '/*.js',
-	JS_FILES_MIN 		= path.join(SRC_JAVASCRIPT_BASE, '/min') + '/**/*',
+	JS_EXTERNAL_FILES	= SRC_JAVASCRIPT_BASE + '/*.js',
 	IMAGES_FILES 		= SRC_IMAGES_BASE + '/**/*',
 	ICON_FILES 			= SRC_FONTS_BASE + '/**/*',
 	DATA_FILES 			= SRC_DATA_BASE + '/**/*.json',
@@ -58,9 +48,9 @@ var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
 var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**/*.html', FOLDER_DEV + '/js/*.js'];
 
 
-var JS_FILES_LIBS_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
+var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
 
-var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE);
+var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE, JS_EXTERNAL_FILES);
 
 var ENVIRONMENT 		= FOLDER_DEV,
 	runFirstTime 		= true;
@@ -94,7 +84,7 @@ gulp.task('copyData', gulp.series(cleanData, copyData));
 gulp.task("watch", function (done) {
 	gulp.watch(SASS_FILES, gulp.series('sass'));
 	gulp.watch(APP_HTML_FILES, gulp.series('copyTemplates'));
-	gulp.watch(APP_JS_FILES, gulp.series("jsConcat"));
+	gulp.watch([APP_JS_FILES, JS_EXTERNAL_FILES], gulp.series("jsConcat"));
 	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
 	gulp.watch(IMAGES_FILES, gulp.series("copyImg"));
 	gulp.watch(DATA_FILES, gulp.series('copyData'));
@@ -141,7 +131,7 @@ function cleanIcons(done) {
 };
 
 function cleanJs(done) {
-	return del([FOLDER_DEV + '/js/*', '!' + FOLDER_DEV + '/js/libs.js']);
+	return del([FOLDER_DEV + '/js/*', '!' + FOLDER_DEV + '/js/min']);
 };
 
 function cleanJsLibs(done) {
@@ -153,10 +143,6 @@ function cleanData(){
 }
 
 function connectServer(done) {
-/*	connect.server({
-		root: ENVIRONMENT,
-		port: serverPort
-	});*/
 	browserSync.init({
 		port: serverPort,
 		server: {
@@ -247,9 +233,9 @@ function jsConcatFunction(done) {
 }
 
 function jsConcatLibsFunction(done) {
-	gulp.src(JS_FILES_LIBS_ORDER)
+	gulp.src(JS_FILES_EXTERNAL_ORDER)
 		.pipe(concat('libs.js')) // concat pulls all our files together before minifying them
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'js'))).on('error', gutil.log);
+		.pipe(gulp.dest(path.join(ENVIRONMENT, 'js/min/'))).on('error', gutil.log);
 	done();
 }
 

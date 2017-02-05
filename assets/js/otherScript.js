@@ -1,0 +1,1 @@
+function nico () { var hol; }
