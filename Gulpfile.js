@@ -96,7 +96,7 @@ gulp.task('connect', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction,
 
 gulp.task('deployTasks', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction)));
 
-gulp.task('deployTasksRun', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, 'copyData', "jsConcat", compressImg, copyIconsFunction), connectServer));
+gulp.task('deployTasksRun', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction), connectServer));
 
 //*************************************    SECCIÓN  Functions    *************************************
 
@@ -135,7 +135,7 @@ function cleanJs(done) {
 };
 
 function cleanJsLibs(done) {
-	return del([FOLDER_DEV + '/js/libs.js']);
+	return del([ENVIRONMENT + '/js/libs.js']);
 };
 
 function cleanData(){
