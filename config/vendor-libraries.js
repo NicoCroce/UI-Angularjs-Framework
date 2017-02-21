@@ -2,6 +2,10 @@
 
 var path = require('path');
 
+exports.getProjects = function() {
+    return ['assets/a', 'assets/b'];
+}
+
 exports.getFiles = function (BOWER_COMPONENTS) {
     return [
         path.join(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js'),

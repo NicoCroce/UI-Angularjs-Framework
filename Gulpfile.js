@@ -2,7 +2,7 @@
 
 var  serverPort 	= 2173;
 
-var vendorLibraries = require('./config/vendor-libraries'),
+var configProject = require('./config/vendor-libraries'),
 	gulp 			= require("gulp"),//http://gulpjs.com/
 	gutil 			= require("gulp-util"),//https://github.com/gulpjs/gulp-util
 	sass 			= require("gulp-sass"),//https://www.npmjs.org/package/gulp-sass
@@ -49,14 +49,16 @@ var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**
 	JS_WATCH 			= FOLDER_DEV + '/js/**/*.js';
 
 
-var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
+var JS_FILES_EXTERNAL_ORDER = configProject.getFiles(BOWER_COMPONENTS);
 
-var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE, JS_EXTERNAL_FILES);
+var JS_FILES_APP_ORDER = configProject.getAppFiles(SRC_APP_BASE, JS_EXTERNAL_FILES);
 
 var ENVIRONMENT 		= FOLDER_DEV,
 	runFirstTime 		= true;
 
-var uglifyOptions = vendorLibraries.getUglifySettings;
+var uglifyOptions = configProject.getUglifySettings;
+
+var projects = configProject.getProjects();
 
 //*************************************    SECCIÓN  Tasks    *************************************
 
@@ -67,6 +69,8 @@ gulp.task('help', gulp.series(showHelp));
 gulp.task("clean", gulp.series(clean));
 
 gulp.task("sass", gulp.series(sassFunction));
+
+gulp.task("sass-deploy", gulp.series(sassFunctionDeployAll));
 
 gulp.task("copyTemplates", gulp.series(cleanTemplates, copyTemplatesFunction));
 
@@ -179,12 +183,29 @@ function sassFunction() {
 	return gulp.src(SRC_SASS_BASE + '/style.scss')
 		.pipe(sourcemaps.init())
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sass()))
-		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, sass({outputStyle: 'compressed'})))
+		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, sass({ outputStyle: 'compressed' })))
 		.pipe(autoprefixer())
 		.pipe(rename('style.css'))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, cleanCSS()))
 		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css')))
+		.pipe(browserSync.stream()).on('error', gutil.log);
+};
+
+function sassFunctionDeployAll(done) {
+	projects.forEach(function (stylePath) {
+		sassFunctionDeploy(stylePath);
+	});
+	return done();
+};
+
+function sassFunctionDeploy(stylePath) {
+	console.log('Compilando para ' + stylePath);
+	return gulp.src(stylePath + '/style.scss')
+		.pipe(autoprefixer())
+		.pipe(rename('style.css'))
+		.pipe(cleanCSS())
+		.pipe(gulp.dest(path.join(stylePath, 'css')))
 		.pipe(browserSync.stream()).on('error', gutil.log);
 };
 
@@ -204,7 +225,6 @@ function copyTemplatesFunction(done) {
 	var copyFiles = gulp.src([APP_HTML_FILES, '!' + SRC_APP_BASE + '/index.html']) //Copy all files except index.html
 		.pipe(gulp.dest(ENVIRONMENT + '/templates/')).on('error', gutil.log);
 	return merge(copyIndex, copyFiles);
-	
 };
 
 function copyImgFunction() {
