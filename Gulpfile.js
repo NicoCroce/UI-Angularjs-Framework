@@ -45,7 +45,8 @@ var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
 	DATA_FILES 			= SRC_DATA_BASE + '/**/*.json',
 	FILES_DATA 			= path.join(FOLDER_ASSETS, 'data') + '/**/*';
 
-var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**/*.html', FOLDER_DEV + '/js/*.js'];
+var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**/*.html', FOLDER_DEV + '/js/*.js'],
+	JS_WATCH 			= FOLDER_DEV + '/js/**/*.js';
 
 
 var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
@@ -88,7 +89,7 @@ gulp.task("watch", function (done) {
 	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
 	gulp.watch(IMAGES_FILES, gulp.series("copyImg"));
 	gulp.watch(DATA_FILES, gulp.series('copyData'));
-	gulp.watch(DEV_HTML_JS_FILES).on('change', browserSync.reload);
+	gulp.watch([JS_WATCH, DEV_HTML_JS_FILES], gulp.series(reload));
 	return done();
 });
 
@@ -140,6 +141,11 @@ function cleanJsLibs(done) {
 
 function cleanData(){
 	return del([FOLDER_DEV + '/data']);
+}
+
+function reload(done) { 
+	browserSync.reload(); 
+	return done(); 
 }
 
 function connectServer(done) {
