@@ -18,6 +18,7 @@ var vendorLibraries = require('./config/vendor-libraries'),
 	imagemin 		= require('gulp-imagemin'),
 	gulpif 			= require('gulp-if'),
 	browserSync 	= require('browser-sync').create(),
+	ngAnnotate 		= require('gulp-ng-annotate'),
 	log 			= gutil.log;
 
 
@@ -232,6 +233,7 @@ function jsConcatFunction(done) {
 	gulp.src(JS_FILES_APP_ORDER)
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.init()))
 		.pipe(concat('script.js')) // concat pulls all our files together before minifying them
+		.pipe(ngAnnotate())
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, gpUglify(uglifyOptions)))
 		.pipe(gulp.dest(path.join(ENVIRONMENT, 'js'))).on('error', gutil.log);

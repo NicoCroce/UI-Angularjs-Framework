@@ -37,6 +37,7 @@
     "gulp-util": "^3.0.7",
     "jeet": "^7.1.0",
     "merge-stream": "^1.0.0",
+    "gulp-ng-annotate": "^2.0.0",
     "node-sass": "^4.4.0"
   },
   "dependencies": {
