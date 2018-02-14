@@ -1,4 +1,4 @@
-# UI-Premium-Framework
+# UI-Angularjs-Framework
 
 ## Requerimientos
 ### Gulp 4
