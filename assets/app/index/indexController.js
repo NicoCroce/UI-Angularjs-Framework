@@ -5,7 +5,6 @@
         .controller('IndexController', IndexController);
         IndexController.$inject = ['$scope'];
         
-        function IndexController ($scope) {
-            $scope.title = "Prueba Index"          
+        function IndexController ($scope) {          
         };
 })();

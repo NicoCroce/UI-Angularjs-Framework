@@ -6,6 +6,6 @@
     HomeCtrl.inject = ['$scope'];
 
     function HomeCtrl ($scope){
-        $scope.prueba = "Vista Inicial HOME";
+
     };
 })();
