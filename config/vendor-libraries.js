@@ -2,15 +2,13 @@
 
 var path = require('path');
 
-exports.getFiles = function (BOWER_COMPONENTS) {
+exports.getFilesJs = function (NPM) {
     return [
-        path.join(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js'),
-        path.join(BOWER_COMPONENTS + '/angular/angular.min.js'),
-        path.join(BOWER_COMPONENTS + '/angular-resource/angular-resource.min.js'),
-        path.join(BOWER_COMPONENTS + '/angular-ui-router/release/angular-ui-router.min.js')
+        path.join(NPM + '/jquery/dist/jquery.min.js'),
+        path.join(NPM + '/angular/angular.min.js'),
+        path.join(NPM + '/@uirouter/angularjs/release/angular-ui-router.min.js')
     ];
 };
-
 
 exports.getAppFiles = function (SRC_APP_BASE, JS_EXTERNAL_FILES) {
     return [

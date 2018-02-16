@@ -41,8 +41,7 @@
     "jeet": "^7.1.0",
     "jquery": "^3.3.1",
     "merge-stream": "^1.0.0",
-    "node-sass": "^4.7.2",
-    "normalize-scss": "^7.0.1"
+    "node-sass": "^4.7.2"
   },
   "dependencies": {
     "gulp-install": "^0.6.0"

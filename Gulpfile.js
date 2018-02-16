@@ -27,7 +27,7 @@ var FOLDER_ASSETS 		= 'assets',
 	FOLDER_DEV 			= 'dev',
 	FOLDER_BUILD		= 'build',
 	FOLDER_DIST			= 'dist',
-	BOWER_COMPONENTS	= 'bower_components';
+	NODE_MODULES		= 'node_modules';
 
 var SRC_SASS_BASE 		= path.join(FOLDER_ASSETS, 'styles'),
 	SRC_IMAGES_BASE 	= path.join(FOLDER_ASSETS, 'images'),
@@ -50,7 +50,7 @@ var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**
 	JS_WATCH 			= FOLDER_DEV + '/js/**/*.js';
 
 
-var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFiles(BOWER_COMPONENTS);
+var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFilesJs(NODE_MODULES);
 
 var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE, JS_EXTERNAL_FILES);
 
@@ -79,8 +79,6 @@ gulp.task('jsConcat', gulp.series(cleanJs, jsConcatFunction));
 
 gulp.task('jsConcatLibs', gulp.series(cleanJsLibs, jsConcatLibsFunction));
 
-gulp.task('copyBower', gulp.series(copyBower));
-
 gulp.task('copyData', gulp.series(cleanData, copyData));
 
 gulp.task("watch", function (done) {
@@ -94,11 +92,11 @@ gulp.task("watch", function (done) {
 	return done();
 });
 
-gulp.task('connect', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
+gulp.task('connect', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
 
-gulp.task('deployTasks', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction)));
+gulp.task('deployTasks', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction)));
 
-gulp.task('deployTasksRun', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction), connectServer));
+gulp.task('deployTasksRun', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction), connectServer));
 
 //*************************************    SECCIÓN  Functions    *************************************
 
@@ -189,14 +187,6 @@ function sassFunction() {
 		.pipe(browserSync.stream()).on('error', gutil.log);
 };
 
-function copyBower() {
-	var jeet = gulp.src('node_modules/jeet/scss/**/*')
-		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet'));
-	var normalize = gulp.src(BOWER_COMPONENTS + '/normalize-scss/sass/**/*')
-		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/normalize/'));		
-	return merge(jeet, normalize);
-};
-
 function copyTemplatesFunction(done) {
 	showComment('Copying HTML Files');
 	var copyIndex = gulp.src(SRC_APP_BASE + '/index.html') //Copy only index.html file.
@@ -270,7 +260,7 @@ function showHelp(done) {
 	showComment("I can help you");
 	log("");
 	log("Run 'gulp' to compile the whole project and start working.");
-	log("If you modify an HTML, CSS, Js, different font or image files a task that will process the information will run.");
+	log("If you modify an HTML, CSS, Js, different font or image files a task that will process the information will be run.");
 	log("");
 	log("----------------------------------------------------------");
 	runFirstTime = true;
