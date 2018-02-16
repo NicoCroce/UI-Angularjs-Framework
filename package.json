@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/NicoCroce/UI-Premium-Framework",
   "devDependencies": {
-    "browser-sync": "^2.18.7",
+    "@uirouter/angularjs": "^1.0.15",
+    "angular": "^1.6.9",
+    "browser-sync": "^2.23.6",
     "del": "^2.2.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-autoprefixer": "^3.1.0",
@@ -30,15 +32,17 @@
     "gulp-concat": "^2.6.0",
     "gulp-if": "^2.0.1",
     "gulp-imagemin": "^3.1.1",
+    "gulp-ng-annotate": "^2.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.3.2",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "jeet": "^7.1.0",
+    "jquery": "^3.3.1",
     "merge-stream": "^1.0.0",
-    "gulp-ng-annotate": "^2.0.0",
-    "node-sass": "^4.4.0"
+    "node-sass": "^4.7.2",
+    "normalize-scss": "^7.0.1"
   },
   "dependencies": {
     "gulp-install": "^0.6.0"
