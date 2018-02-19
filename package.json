@@ -4,11 +4,6 @@
   "description": "New Framework UI",
   "main": "index.js",
   "scripts": {
-    "update": "npm install && bower install",
-    "gulp": "npm install gulpjs/gulp-cli -g",
-    "bower": "npm install bower",
-    "first-run": "npm run bower && npm run update",
-    "install-gulp-run": "npm run bower && npm run gulp && npm run update"
   },
   "repository": {
     "type": "git",
@@ -30,6 +25,7 @@
     "gulp-clean-css": "^2.0.13",
     "gulp-cli": "^1.2.2",
     "gulp-concat": "^2.6.0",
+    "gulp-htmlmin": "^4.0.0",
     "gulp-if": "^2.0.1",
     "gulp-imagemin": "^3.1.1",
     "gulp-ng-annotate": "^2.0.0",

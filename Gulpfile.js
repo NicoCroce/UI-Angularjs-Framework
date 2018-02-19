@@ -1,6 +1,6 @@
 'use strict';
 
-var  serverPort 	= 2173;
+var  serverPort 	= 1111;
 
 var vendorLibraries = require('./config/vendor-libraries'),
 	gulp 			= require("gulp"),//http://gulpjs.com/
@@ -19,6 +19,7 @@ var vendorLibraries = require('./config/vendor-libraries'),
 	gulpif 			= require('gulp-if'),
 	browserSync 	= require('browser-sync').create(),
 	ngAnnotate 		= require('gulp-ng-annotate'),
+	htmlmin 		= require('gulp-htmlmin'),
 	log 			= gutil.log;
 
 
@@ -190,9 +191,11 @@ function sassFunction() {
 function copyTemplatesFunction(done) {
 	showComment('Copying HTML Files');
 	var copyIndex = gulp.src(SRC_APP_BASE + '/index.html') //Copy only index.html file.
+		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, htmlmin({collapseWhitespace: true})))
 		.pipe(gulp.dest(ENVIRONMENT)).on('error', gutil.log);
 
 	var copyFiles = gulp.src([APP_HTML_FILES, '!' + SRC_APP_BASE + '/index.html']) //Copy all files except index.html
+		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, htmlmin({collapseWhitespace: true})))
 		.pipe(gulp.dest(ENVIRONMENT + '/templates/')).on('error', gutil.log);
 	return merge(copyIndex, copyFiles);
 	

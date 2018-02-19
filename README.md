@@ -3,7 +3,7 @@
 ## Requerimientos
 ### Gulp 4
 
-En una terminal con privilegios ADMIN ejecutar
+En una terminal ejecutar
 
 ```sh
 $ npm rm gulp -g
@@ -19,14 +19,14 @@ $ npm install gulpjs/gulp-cli -g
 
 https://demisx.github.io/gulp4/2015/01/15/install-gulp4.html
 
-###Descargar e instalar el Proyecto
+### Descargar e instalar el Proyecto
 
 Dentro de un directorio limpio ejecutar
 ```sh
-$ git clone https://github.com/NicoCroce/webworld.git
+$ git clone https://github.com/NicoCroce/UI-Angularjs-Framework.git
 ```
 ```sh
-$ cd webworld
+$ cd UI-Angularjs-Framework
 ```
 Para instalar todas las dependencias ejecutar
 ```sh
@@ -41,4 +41,4 @@ $ gulp
 ```
 
 Por último observar el resultado en un navegador. 
-http://127.0.0.1:2173/
+http://127.0.0.1:1111/
