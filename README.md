@@ -30,7 +30,7 @@ $ cd UI-Angularjs-Framework
 ```
 Para instalar todas las dependencias ejecutar
 ```sh
-$ npm run first-run
+$ npm install
 ```
 
 Esperar que termine de instalar las dependencias y ejecutar 
