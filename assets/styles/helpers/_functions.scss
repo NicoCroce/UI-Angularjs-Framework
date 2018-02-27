@@ -25,12 +25,6 @@
 	@return $value / ($value * 0 + 1);
 }
 
-// ----- Recalculate responsive breakpoints ----- //
-@function bp-calculation($breakpoint, $type){
-  @if($type == "up") {@return $breakpoint + 1;}
-  @elseif($type == "down") {@return $breakpoint - 1;}
-}
-
 // ----- Lighten a color ----- //
 @function tint($color, $percentage) {
   @return mix(white, $color, $percentage);

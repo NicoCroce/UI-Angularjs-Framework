@@ -1,20 +1,20 @@
 {
-  "name": "UI-Premium-Framework",
-  "version": "1.0.0",
+  "name": "uia-framework",
+  "version": "1.0.1",
   "description": "New Framework UI",
   "main": "index.js",
   "scripts": {
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NicoCroce/UI-Premium-Framework.git"
+    "url": "https://github.com/NicoCroce/UI-Angularjs-Framework.git"
   },
   "author": "Nico Croce",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/NicoCroce/UI-Premium-Framework/issues"
+    "url": "https://github.com/NicoCroce/UI-Angularjs-Framework/issues"
   },
-  "homepage": "https://github.com/NicoCroce/UI-Premium-Framework",
+  "homepage": "https://github.com/NicoCroce/UI-Angularjs-Framework/tree/Angularjs",
   "devDependencies": {
     "@uirouter/angularjs": "^1.0.15",
     "angular": "^1.6.9",
