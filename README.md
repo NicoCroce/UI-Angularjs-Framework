@@ -3,8 +3,6 @@
 ## Requerimientos
 ### Gulp 4
 
-*Verificar que nos encontramos en la rama Angularjs*
-
 En una terminal ejecutar
 
 ```sh
@@ -22,6 +20,8 @@ $ npm install gulpjs/gulp-cli -g
 https://demisx.github.io/gulp4/2015/01/15/install-gulp4.html
 
 ### Descargar e instalar el Proyecto
+
+*Verificar que nos encontramos en la rama "Angularjs"*
 
 Dentro de un directorio limpio ejecutar
 ```sh
