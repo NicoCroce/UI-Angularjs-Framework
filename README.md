@@ -3,6 +3,8 @@
 ## Requerimientos
 ### Gulp 4
 
+*Verificar que nos encontramos en la rama Angularjs*
+
 En una terminal ejecutar
 
 ```sh
