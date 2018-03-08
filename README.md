@@ -21,8 +21,6 @@ https://demisx.github.io/gulp4/2015/01/15/install-gulp4.html
 
 ### Descargar e instalar el Proyecto
 
-*Verificar que nos encontramos en la rama "Angularjs"*
-
 Dentro de un directorio limpio ejecutar
 ```sh
 $ git clone https://github.com/NicoCroce/UI-Angularjs-Framework.git
@@ -30,6 +28,8 @@ $ git clone https://github.com/NicoCroce/UI-Angularjs-Framework.git
 ```sh
 $ cd UI-Angularjs-Framework
 ```
+*Verificar que nos encontramos en la rama "Angularjs"*
+
 Para instalar todas las dependencias ejecutar
 ```sh
 $ npm install
