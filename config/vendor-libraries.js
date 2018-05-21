@@ -1,23 +1,27 @@
 'use strict';
 
-var path = require('path');
-
 exports.getFilesJs = function (NPM) {
     return [
-        path.join(NPM + '/jquery/dist/jquery.min.js'),
-        path.join(NPM + '/angular/angular.min.js'),
-        path.join(NPM + '/@uirouter/angularjs/release/angular-ui-router.min.js')
+        NPM + '/jquery/dist/jquery.min.js',
+        NPM + '/angular/angular.min.js',
+        NPM + '/@uirouter/angularjs/release/angular-ui-router.min.js'
     ];
 };
 
 exports.getAppFiles = function (SRC_APP_BASE, JS_EXTERNAL_FILES) {
     return [
-        path.join(SRC_APP_BASE + '/app.config.js'),
-        path.join(SRC_APP_BASE + '/app.modules.js'),
-        path.join(SRC_APP_BASE + '/**/*.js'),
-        path.join(JS_EXTERNAL_FILES)
+        JS_EXTERNAL_FILES,
+        SRC_APP_BASE + '/app.config.js',
+        SRC_APP_BASE + '/app.modules.js',
+        SRC_APP_BASE + '/**/*.js'
     ];
 };
+
+exports.getSassFiles = function (NPM) {
+    return [
+        NPM + '/jeet/scss/*'
+    ]
+}
 
 
 exports.getUglifySettings = {

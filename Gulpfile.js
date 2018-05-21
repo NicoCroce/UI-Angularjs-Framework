@@ -10,7 +10,6 @@ var vendorLibraries = require('./config/vendor-libraries'),
 	cleanCSS 		= require('gulp-clean-css'),//https://www.npmjs.com/package/gulp-clean-css
 	rename 			= require('gulp-rename'),//https://www.npmjs.org/package/gulp-rename
 	sourcemaps 		= require('gulp-sourcemaps'), //Genera un mapa de referencias para los archivos. 
-	path 			= require('path'), //Es de Node. Concatena.
 	merge 			= require('merge-stream'),
 	concat 			= require('gulp-concat'),
 	del 			= require('del'),
@@ -30,14 +29,14 @@ var FOLDER_ASSETS 		= 'assets',
 	FOLDER_DIST			= 'dist',
 	NODE_MODULES		= 'node_modules';
 
-var SRC_SASS_BASE 		= path.join(FOLDER_ASSETS, 'styles'),
-	SRC_IMAGES_BASE 	= path.join(FOLDER_ASSETS, 'images'),
-	SRC_FONTS_BASE 		= path.join(FOLDER_ASSETS, 'icons'),
-	SRC_JAVASCRIPT_BASE = path.join(FOLDER_ASSETS, 'js'),
-	SRC_DATA_BASE 		= path.join(FOLDER_ASSETS, 'data'),
-	SRC_APP_BASE 		= path.join(FOLDER_ASSETS, 'app');
+var SRC_SASS_BASE 		= FOLDER_ASSETS + '/styles',
+	SRC_IMAGES_BASE 	= FOLDER_ASSETS + '/images',
+	SRC_FONTS_BASE 		= FOLDER_ASSETS + '/icons',
+	SRC_JAVASCRIPT_BASE = FOLDER_ASSETS + '/js',
+	SRC_DATA_BASE 		= FOLDER_ASSETS + '/data',
+	SRC_APP_BASE 		= FOLDER_ASSETS + '/app';
 
-var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
+var SASS_FILES 			= [SRC_SASS_BASE + '/**/*.scss', SRC_APP_BASE + '/**/*.scss'],
 	APP_FILES 			= SRC_APP_BASE + '/**/*',
 	APP_HTML_FILES 		= SRC_APP_BASE + '/**/*.html',
 	APP_JS_FILES 		= SRC_APP_BASE + '/**/*.js',
@@ -45,7 +44,9 @@ var SASS_FILES 			= SRC_SASS_BASE + '/**/*.scss',
 	IMAGES_FILES 		= SRC_IMAGES_BASE + '/**/*',
 	ICON_FILES 			= SRC_FONTS_BASE + '/**/*',
 	DATA_FILES 			= SRC_DATA_BASE + '/**/*.json',
-	FILES_DATA 			= path.join(FOLDER_ASSETS, 'data') + '/**/*';
+	FILES_DATA 			= FOLDER_ASSETS + '/data' + '/**/*';
+
+	console.log(FILES_DATA);
 
 var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**/*.html', FOLDER_DEV + '/js/*.js'],
 	JS_WATCH 			= FOLDER_DEV + '/js/**/*.js';
@@ -54,6 +55,7 @@ var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**
 var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFilesJs(NODE_MODULES);
 
 var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE, JS_EXTERNAL_FILES);
+var SCSS_FILES_LIBS = vendorLibraries.getSassFiles(NODE_MODULES);
 
 var ENVIRONMENT 		= FOLDER_DEV,
 	runFirstTime 		= true;
@@ -70,7 +72,7 @@ gulp.task("clean", gulp.series(clean));
 
 gulp.task("sass", gulp.series(sassFunction));
 
-gulp.task("copyTemplates", gulp.series(cleanTemplates, copyTemplatesFunction));
+gulp.task("copyHTML", gulp.series(cleanTemplates, copyHTMLFunction));
 
 gulp.task("copyImg", gulp.series(cleanImg, copyImgFunction));
 
@@ -82,22 +84,58 @@ gulp.task('jsConcatLibs', gulp.series(cleanJsLibs, jsConcatLibsFunction));
 
 gulp.task('copyData', gulp.series(cleanData, copyData));
 
+gulp.task('scssLibsFunction', gulp.series(scssLibsFunction));
+/* 
 gulp.task("watch", function (done) {
-	gulp.watch(SASS_FILES, gulp.series('sass'));
-	gulp.watch(APP_HTML_FILES, gulp.series('copyTemplates'));
-	gulp.watch([APP_JS_FILES, JS_EXTERNAL_FILES], gulp.series("jsConcat"));
-	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
-	gulp.watch(IMAGES_FILES, gulp.series("copyImg"));
+	//gulp.watch(SASS_FILES, gulp.series(sassFunction));
+
+
+
+
 	gulp.watch(DATA_FILES, gulp.series('copyData'));
 	gulp.watch([JS_WATCH, DEV_HTML_JS_FILES], gulp.series(reload));
 	return done();
+}); */
+
+gulp.task("watch", function(done) {
+	gulp.watch(SASS_FILES, gulp.series(sassFunction))
+	.on('change', function(path, stats) {
+		showComment('Changed SASS File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+	
+	gulp.watch(APP_HTML_FILES, gulp.series('copyHTML'))
+	.on('change', function(path, stats) {
+		showComment('Changed HTML File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+
+	gulp.watch([APP_JS_FILES, JS_EXTERNAL_FILES], gulp.series('jsConcat'))
+	.on('change', function(path, stats) {
+		showComment('Changed JS File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+	
+	gulp.watch(ICON_FILES, gulp.series('copyIcons'))
+	.on('change', function(path, stats) {
+		showComment('Changed Icons File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+	
+	gulp.watch(IMAGES_FILES, gulp.series('copyImg'))
+	.on('change', function(path, stats) {
+		showComment('Changed Img File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+
+	gulp.watch([JS_WATCH, DEV_HTML_JS_FILES], gulp.series(reload))
 });
 
-gulp.task('connect', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
+gulp.task('connect', gulp.series(scssLibsFunction, gulp.parallel(copyHTMLFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
 
-gulp.task('deployTasks', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction)));
+gulp.task('deployTasks', gulp.series(scssLibsFunction, gulp.parallel(copyHTMLFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction)));
 
-gulp.task('deployTasksRun', gulp.series(gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction), connectServer));
+gulp.task('deployTasksRun', gulp.series(scssLibsFunction, gulp.parallel(copyHTMLFunction, sassFunction, "jsConcatLibs", 'copyData', "jsConcat", compressImg, copyIconsFunction), connectServer));
 
 //*************************************    SECCIÓN  Functions    *************************************
 
@@ -184,11 +222,11 @@ function sassFunction() {
 		.pipe(rename('style.css'))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, cleanCSS()))
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css')))
+		.pipe(gulp.dest(ENVIRONMENT + '/css'))
 		.pipe(browserSync.stream()).on('error', gutil.log);
 };
 
-function copyTemplatesFunction(done) {
+function copyHTMLFunction(done) {
 	showComment('Copying HTML Files');
 	var copyIndex = gulp.src(SRC_APP_BASE + '/index.html') //Copy only index.html file.
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, htmlmin({collapseWhitespace: true})))
@@ -204,7 +242,7 @@ function copyTemplatesFunction(done) {
 function copyImgFunction() {
 	showComment('Copying Images Files');
 	return gulp.src(IMAGES_FILES)
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'img'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT, '/img')).on('error', gutil.log);
 };
 
 function compressImg () {
@@ -215,10 +253,10 @@ function compressImg () {
 
 function copyIconsFunction(done) {
 	var copyCss = gulp.src(SRC_FONTS_BASE + '/**/*.css')
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/css')).on('error', gutil.log);
 
 	var copyFonts = gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'fonts'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/fonts')).on('error', gutil.log);
 	return merge(copyCss, copyFonts);
 };
 
@@ -229,15 +267,20 @@ function jsConcatFunction(done) {
 		.pipe(ngAnnotate())
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, gpUglify(uglifyOptions)))
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'js'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/js')).on('error', gutil.log);
 	done();
 }
 
 function jsConcatLibsFunction(done) {
 	gulp.src(JS_FILES_EXTERNAL_ORDER)
 		.pipe(concat('libs.js')) // concat pulls all our files together before minifying them
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'js/min/'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/js/min/')).on('error', gutil.log);
 	done();
+}
+
+function scssLibsFunction() {
+	return gulp.src(SCSS_FILES_LIBS)
+		.pipe(gulp.dest(FOLDER_ASSETS + '/styles/libs/' + 'jeet')).on('error', gutil.log);
 }
 
 //************************************************************************************************
