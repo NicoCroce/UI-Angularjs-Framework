@@ -1,76 +1,61 @@
 'use strict';
 
-var  serverPort 	= 2173;
+var  serverPort 	= 1111;
 
-var gulp 			= require("gulp"),//http://gulpjs.com/
+var vendorLibraries = require('./config/vendor-libraries'),
+	gulp 			= require("gulp"),//http://gulpjs.com/
 	gutil 			= require("gulp-util"),//https://github.com/gulpjs/gulp-util
 	sass 			= require("gulp-sass"),//https://www.npmjs.org/package/gulp-sass
 	autoprefixer 	= require('gulp-autoprefixer'),//https://www.npmjs.org/package/gulp-autoprefixer
 	cleanCSS 		= require('gulp-clean-css'),//https://www.npmjs.com/package/gulp-clean-css
 	rename 			= require('gulp-rename'),//https://www.npmjs.org/package/gulp-rename
 	sourcemaps 		= require('gulp-sourcemaps'), //Genera un mapa de referencias para los archivos. 
-	path 			= require('path'), //Es de Node. Concatena.
 	merge 			= require('merge-stream'),
-	connect 		= require('gulp-connect'),
 	concat 			= require('gulp-concat'),
 	del 			= require('del'),
 	gpUglify 		= require('gulp-uglify'),
 	imagemin 		= require('gulp-imagemin'),
 	gulpif 			= require('gulp-if'),
-
-	// imagemin = require('gulp-imagemin'),
+	browserSync 	= require('browser-sync').create(),
+	ngAnnotate 		= require('gulp-ng-annotate'),
+	htmlmin 		= require('gulp-htmlmin'),
 	log 			= gutil.log;
 
 
 // Folders for assets, development environment and production environment
-var FOLDER_ASSETS 	= 'assets',
-FOLDER_DEV 			= 'dev',
-FOLDER_BUILD		= 'build',
-FOLDER_DIST			= 'dist',
-BOWER_COMPONENTS	= 'bower_components';
+var FOLDER_ASSETS 		= 'assets',
+	FOLDER_DEV 			= 'dev',
+	FOLDER_BUILD		= 'build',
+	FOLDER_DIST			= 'dist',
+	NODE_MODULES		= 'node_modules';
 
-var SRC_SASS_BASE 	= path.join(FOLDER_ASSETS, 'styles'),
-SRC_IMAGES_BASE 	= path.join(FOLDER_ASSETS, 'images'),
-SRC_FONTS_BASE 		= path.join(FOLDER_ASSETS, 'icons'),
-SRC_JAVASCRIPT_BASE = path.join(FOLDER_ASSETS, 'js'),
-SRC_HTML_BASE 		= path.join(FOLDER_ASSETS, 'templates');
+var SRC_SASS_BASE 		= FOLDER_ASSETS + '/styles',
+	SRC_IMAGES_BASE 	= FOLDER_ASSETS + '/images',
+	SRC_FONTS_BASE 		= FOLDER_ASSETS + '/icons',
+	SRC_JAVASCRIPT_BASE = FOLDER_ASSETS + '/js',
+	SRC_APP_BASE 		= FOLDER_ASSETS + '/app';
 
-var SASS_FILES 		= SRC_SASS_BASE + '/**/*.scss',
-HTML_FILES 			= SRC_HTML_BASE + '/**/*.html',
-JS_FILES 			= SRC_JAVASCRIPT_BASE + '/*.js',
-JS_FILES_BUNDLES 	= path.join(SRC_JAVASCRIPT_BASE, 'bundles') + '/**/*',
-IMAGES_FILES 		= SRC_IMAGES_BASE + '/**/*',
-ICON_FILES 			= SRC_FONTS_BASE + '/**/*';
+var SASS_FILES 			= [SRC_SASS_BASE + '/**/*.scss', SRC_APP_BASE + '/**/*.scss'],
+	APP_FILES 			= SRC_APP_BASE + '/**/*',
+	APP_HTML_FILES 		= SRC_APP_BASE + '/**/*.html',
+	APP_JS_FILES 		= SRC_APP_BASE + '/**/*.js',
+	JS_EXTERNAL_FILES	= SRC_JAVASCRIPT_BASE + '/*.js',
+	IMAGES_FILES 		= SRC_IMAGES_BASE + '/**/*',
+	ICON_FILES 			= SRC_FONTS_BASE + '/**/*';
 
-// Use this line if you need specified files order to concatenate
-var JS_FILES_ORDER		= [SRC_JAVASCRIPT_BASE + '/script.js', SRC_JAVASCRIPT_BASE + '/scroll.js'];
+var DEV_HTML_JS_FILES 	= [FOLDER_DEV + 'index.html', FOLDER_DEV + '/templates/**/*.html', FOLDER_DEV + '/js/*.js'],
+	JS_WATCH 			= FOLDER_DEV + '/js/**/*.js';
 
-var ENVIRONMENT 	= FOLDER_DEV,
-runFirstTime 		= true;
 
-var uglifyOptions = {
-	compress: {
-		sequences     : true,  // join consecutive statemets with the “comma operator”
-		properties    : true,  // optimize property access: a["foo"] → a.foo
-		dead_code     : true,  // discard unreachable code
-		drop_debugger : true,  // discard “debugger” statements
-		unsafe        : false, // some unsafe optimizations (see below)
-		conditionals  : true,  // optimize if-s and conditional expressions
-		comparisons   : true,  // optimize comparisons
-		evaluate      : true,  // evaluate constant expressions
-		booleans      : true,  // optimize boolean expressions
-		loops         : true,  // optimize loops
-		unused        : true,  // drop unused variables/functions
-		hoist_funs    : true,  // hoist function declarations
-		hoist_vars    : false, // hoist variable declarations
-		if_return     : true,  // optimize if-s followed by return/continue
-		join_vars     : true,  // join var declarations
-		cascade       : true,  // try to cascade `right` into `left` in sequences
-		side_effects  : true,  // drop side-effect-free statements
-		warnings      : true,  // warn about potentially dangerous optimizations/code
-		global_defs   : {}     // global definitions
-	}
-};
+var JS_FILES_EXTERNAL_ORDER = vendorLibraries.getFilesJs(NODE_MODULES);
+
+var JS_FILES_APP_ORDER = vendorLibraries.getAppFiles(SRC_APP_BASE, JS_EXTERNAL_FILES);
+var SCSS_FILES_LIBS = vendorLibraries.getSassFiles(NODE_MODULES);
+
+var ENVIRONMENT 		= FOLDER_DEV,
+	runFirstTime 		= true;
+
+var uglifyOptions = vendorLibraries.getUglifySettings;
 
 //*************************************    SECCIÓN  Tasks    *************************************
 
@@ -82,31 +67,57 @@ gulp.task("clean", gulp.series(clean));
 
 gulp.task("sass", gulp.series(sassFunction));
 
-gulp.task("copyTemplates", gulp.series(cleanTemplates, copyTemplatesFunction));
+gulp.task("copyHTML", gulp.series(cleanTemplates, copyHTMLFunction));
 
 gulp.task("copyImg", gulp.series(cleanImg, copyImgFunction));
 
 gulp.task("copyIcons", gulp.series(cleanIcons, copyIconsFunction));
 
-gulp.task("copyJs", gulp.series(cleanJs, copyJsFunction));
+gulp.task('jsConcat', gulp.series(cleanJs, jsConcatFunction));
 
-gulp.task('jsConcat', gulp.series('copyJs', jsConcatFunction));
+gulp.task('jsConcatLibs', gulp.series(cleanJsLibs, jsConcatLibsFunction));
 
-gulp.task('copyBower', gulp.series(copyBower));
+gulp.task('scssLibsFunction', gulp.series(scssLibsFunction));
 
-gulp.task("watch", function (done) {
-	gulp.watch(SASS_FILES, gulp.series('sass'));
-	gulp.watch(HTML_FILES, gulp.series('copyTemplates'));
-	gulp.watch(JS_FILES, gulp.series("jsConcat", "copyJs"));
-	gulp.watch(ICON_FILES, gulp.series('copyIcons'));
-	gulp.watch(IMAGES_FILES, gulp.series("copyImg"));
-	return done();
+gulp.task("watch", function(done) {
+	gulp.watch(SASS_FILES, gulp.series(sassFunction))
+	.on('change', function(path, stats) {
+		showComment('Changed SASS File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+	
+	gulp.watch(APP_HTML_FILES, gulp.series('copyHTML'))
+	.on('change', function(path, stats) {
+		showComment('Changed HTML File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+
+	gulp.watch([APP_JS_FILES, JS_EXTERNAL_FILES], gulp.series('jsConcat'))
+	.on('change', function(path, stats) {
+		showComment('Changed JS File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+	
+	gulp.watch(ICON_FILES, gulp.series('copyIcons'))
+	.on('change', function(path, stats) {
+		showComment('Changed Icons File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+	
+	gulp.watch(IMAGES_FILES, gulp.series('copyImg'))
+	.on('change', function(path, stats) {
+		showComment('Changed Img File');
+		console.log(' ========> File: ' + path + '\n');
+	});
+
+	gulp.watch([JS_WATCH, DEV_HTML_JS_FILES], gulp.series(reload))
 });
 
-gulp.task('connect', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
+gulp.task('connect', gulp.series(scssLibsFunction, gulp.parallel(copyHTMLFunction, sassFunction, "jsConcatLibs", "jsConcat", copyImgFunction, copyIconsFunction), connectServer));
 
-gulp.task('deployTasks', gulp.series(copyBower, gulp.parallel(copyTemplatesFunction, sassFunction, "jsConcat", compressImg, copyIconsFunction)));
+gulp.task('deployTasks', gulp.series(scssLibsFunction, gulp.parallel(copyHTMLFunction, sassFunction, "jsConcatLibs", "jsConcat", compressImg, copyIconsFunction)));
 
+gulp.task('deployTasksRun', gulp.series(scssLibsFunction, gulp.parallel(copyHTMLFunction, sassFunction, "jsConcatLibs", "jsConcat", compressImg, copyIconsFunction), connectServer));
 
 //*************************************    SECCIÓN  Functions    *************************************
 
@@ -141,15 +152,34 @@ function cleanIcons(done) {
 };
 
 function cleanJs(done) {
-	return del([FOLDER_DEV + '/js/bundles']);
+	return del([FOLDER_DEV + '/js/*', '!' + FOLDER_DEV + '/js/min']);
 };
 
-function connectServer(done) {
-	connect.server({
-		root: ENVIRONMENT,
-		port: serverPort
-	});
+function cleanJsLibs(done) {
+	return del([ENVIRONMENT + '/js/libs.js']);
+};
+
+function reload(done) {
+	browserSync.reload();
 	return done();
+}
+
+function connectServer(done) {
+	browserSync.init({
+		port: serverPort,
+		server: {
+			baseDir: ENVIRONMENT
+		},
+		ui: {
+			port: 2222,
+		}
+	});
+
+	return done();
+/*
+
+
+	return done();*/
 };
 
 function sassFunction() {
@@ -162,30 +192,27 @@ function sassFunction() {
 		.pipe(rename('style.css'))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, cleanCSS()))
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/css'))
+		.pipe(browserSync.stream()).on('error', gutil.log);
 };
 
-function copyBower() {
-	var jeet = gulp.src(BOWER_COMPONENTS + '/jeet/scss/jeet/**/*')
-		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/jeet'));
-	var jqueryFiles = gulp.src(BOWER_COMPONENTS + '/jquery/dist/jquery.min.js')
-		.pipe(gulp.dest(SRC_JAVASCRIPT_BASE + '/bundles/min/'));
-	var normalize = gulp.src(BOWER_COMPONENTS + '/normalize-scss/sass/**/*')
-		.pipe(gulp.dest(SRC_SASS_BASE + '/libs/normalize/'));
-
-	return merge(jeet, jqueryFiles, normalize);
-};
-
-function copyTemplatesFunction() {
+function copyHTMLFunction(done) {
 	showComment('Copying HTML Files');
-	return gulp.src(HTML_FILES)
+	var copyIndex = gulp.src(SRC_APP_BASE + '/index.html') //Copy only index.html file.
+		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, htmlmin({collapseWhitespace: true})))
 		.pipe(gulp.dest(ENVIRONMENT)).on('error', gutil.log);
+
+	var copyFiles = gulp.src([APP_HTML_FILES, '!' + SRC_APP_BASE + '/index.html']) //Copy all files except index.html
+		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, htmlmin({collapseWhitespace: true})))
+		.pipe(gulp.dest(ENVIRONMENT + '/templates/')).on('error', gutil.log);
+	return merge(copyIndex, copyFiles);
+	
 };
 
 function copyImgFunction() {
 	showComment('Copying Images Files');
 	return gulp.src(IMAGES_FILES)
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'img'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT, '/img')).on('error', gutil.log);
 };
 
 function compressImg () {
@@ -196,27 +223,34 @@ function compressImg () {
 
 function copyIconsFunction(done) {
 	var copyCss = gulp.src(SRC_FONTS_BASE + '/**/*.css')
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'css'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/css')).on('error', gutil.log);
 
 	var copyFonts = gulp.src(SRC_FONTS_BASE + '/fonts/**/*')
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'fonts'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/fonts')).on('error', gutil.log);
 	return merge(copyCss, copyFonts);
 };
 
-function copyJsFunction() {
-	/*showComment('Copying JS Files');*/
-	return gulp.src(JS_FILES_BUNDLES)
-		.pipe(gulp.dest(ENVIRONMENT + '/js/bundles'));
-}
-
 function jsConcatFunction(done) {
-	gulp.src(JS_FILES)
+	gulp.src(JS_FILES_APP_ORDER)
 		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.init()))
 		.pipe(concat('script.js')) // concat pulls all our files together before minifying them
-		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV , sourcemaps.write('./maps')))
+		.pipe(ngAnnotate())
+		.pipe(gulpif(ENVIRONMENT == FOLDER_DEV, sourcemaps.write('./maps')))
 		.pipe(gulpif(ENVIRONMENT == FOLDER_BUILD, gpUglify(uglifyOptions)))
-		.pipe(gulp.dest(path.join(ENVIRONMENT, 'js'))).on('error', gutil.log);
+		.pipe(gulp.dest(ENVIRONMENT + '/js')).on('error', gutil.log);
 	done();
+}
+
+function jsConcatLibsFunction(done) {
+	gulp.src(JS_FILES_EXTERNAL_ORDER)
+		.pipe(concat('libs.js')) // concat pulls all our files together before minifying them
+		.pipe(gulp.dest(ENVIRONMENT + '/js/min/')).on('error', gutil.log);
+	done();
+}
+
+function scssLibsFunction() {
+	return gulp.src(SCSS_FILES_LIBS)
+		.pipe(gulp.dest(FOLDER_ASSETS + '/styles/libs/' + 'jeet')).on('error', gutil.log);
 }
 
 //************************************************************************************************
@@ -242,7 +276,7 @@ function showHelp(done) {
 	showComment("I can help you");
 	log("");
 	log("Run 'gulp' to compile the whole project and start working.");
-	log("If you modify an HTML, CSS, Js, different font or image files a task that will process the information will run.");
+	log("If you modify an HTML, CSS, Js, different font or image files a task that will process the information will be run.");
 	log("");
 	log("----------------------------------------------------------");
 	runFirstTime = true;
@@ -268,11 +302,10 @@ gulp.task('deploy', gulp.series(setEnvironmentProd, clean, 'deployTasks', functi
 	done();
 }));
 
-// gulp.task('deploy', ['copyTemplates'], function () {
-// 	ENVIRONMENT = 'dep';
-// 	runFirstTime = false;
-// 	showComment('COMPLETE DEPLOY');
-// });	
+gulp.task('deploy-run', gulp.series(setEnvironmentProd, clean, 'deployTasksRun', function runDeploy() {
+	runFirstTime = false;
+	finishMsg('IS DEPLOYED in "' + FOLDER_BUILD + '" folder');
+}));
 
 //************************************************************************************
 

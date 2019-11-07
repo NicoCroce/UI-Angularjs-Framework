@@ -1,8 +1,8 @@
 node_modules/
+bower_components/
 dev/
 dist/
-bower_components/
-assets/js/bundles/min/jquery.min.js
+build/
 assets/styles/libs/jeet/
 assets/styles/libs/normalize/
-build/
+debug.log

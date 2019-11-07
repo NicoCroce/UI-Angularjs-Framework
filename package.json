@@ -1,46 +1,41 @@
 {
-  "name": "UI-Premium-Framework",
-  "version": "1.0.0",
+  "name": "uia-framework",
+  "version": "1.0.2",
   "description": "New Framework UI",
   "main": "index.js",
-  "scripts": {
-    "update": "npm install && bower install",
-    "gulp": "npm install gulpjs/gulp-cli -g",
-    "bower": "npm install bower",
-    "first-run": "npm run bower && npm run update",
-    "install-gulp-run": "npm run bower && npm run gulp && npm run update"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/NicoCroce/UI-Premium-Framework.git"
+    "url": "https://github.com/NicoCroce/UI-Angularjs-Framework.git"
   },
   "author": "Nico Croce",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/NicoCroce/UI-Premium-Framework/issues"
+    "url": "https://github.com/NicoCroce/UI-Angularjs-Framework/issues"
   },
-  "homepage": "https://github.com/NicoCroce/UI-Premium-Framework",
+  "homepage": "https://github.com/NicoCroce/UI-Angularjs-Framework/tree/Angularjs",
   "devDependencies": {
+    "@uirouter/angularjs": "^1.0.15",
+    "angular": "^1.6.9",
+    "browser-sync": "^2.23.6",
     "del": "^2.2.0",
-    "gulp": "gulpjs/gulp#4.0",
+    "gulp": "^4.0.0",
     "gulp-autoprefixer": "^3.1.0",
-    "gulp-clean-css": "^2.0.13",
+    "gulp-clean-css": "^3.9.2",
     "gulp-cli": "^1.2.2",
     "gulp-concat": "^2.6.0",
-    "gulp-connect": "^4.0.0",
+    "gulp-htmlmin": "^4.0.0",
     "gulp-if": "^2.0.1",
-    "gulp-plumber": "^1.1.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.3.2",
     "gulp-imagemin": "^3.1.1",
+    "gulp-install": "^1.1.0",
+    "gulp-ng-annotate": "^2.0.0",
+    "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^2.0.0",
-    "gulp-util": "^3.0.7",
-    "gulp-wrapper": "^1.0.0",
-    "merge-stream": "^1.0.0"
+    "gulp-util": "^3.0.8",
+    "jeet": "^7.1.0",
+    "merge-stream": "^1.0.0",
+    "gulp-sass": "^4.0.1"
   },
-  "dependencies": {
-    "gulp-install": "^0.6.0"
-  }
+  "dependencies": {}
 }
-
