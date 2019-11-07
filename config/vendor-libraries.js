@@ -2,7 +2,6 @@
 
 exports.getFilesJs = function (NPM) {
     return [
-        NPM + '/jquery/dist/jquery.min.js',
         NPM + '/angular/angular.min.js',
         NPM + '/@uirouter/angularjs/release/angular-ui-router.min.js'
     ];
